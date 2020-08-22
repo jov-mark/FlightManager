@@ -8,7 +8,6 @@ import reservations.ReservationController;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import org.json.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,34 +66,5 @@ public class TicketsController {
 
     public static boolean updateCount(String id, boolean inc){
         return TicketsService.updateCount(id,inc);
-    }
-
-    private static Ticket parseJson(String json){
-        JSONObject obj = new JSONObject(json);
-        int id = obj.getInt("id");
-        boolean oneWay = obj.getBoolean("oneWay");
-        long count = obj.getLong("count");
-        int version = obj.getInt("version");
-        String depart = obj.getString("departureDate");
-        String ret = obj.getString("returnDate");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date departure = null;
-        Date returnDate = null;
-//        try {
-////            departure = sdf.parse(depart);
-////            returnDate = sdf.parse(ret);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-        JSONObject company = obj.getJSONObject("company");
-        Company com = new Company(company.getInt("id"),company.getString("name"),company.getInt("version"));
-        JSONObject origin = obj.getJSONObject("originCity");
-        City oc = new City(origin.getInt("id"),origin.getString("name"));
-        JSONObject dest = obj.getJSONObject("destCity");
-        City de = new City(dest.getInt("id"),dest.getString("name"));
-        JSONObject flight = obj.getJSONObject("flight");
-        Flight fl = new Flight(flight.getInt("id"),oc,de,flight.getInt("version"));
-        Ticket ticket = new Ticket(id, com,oneWay,new Date(),new Date(),fl,count,version);
-        return ticket;
     }
 }
