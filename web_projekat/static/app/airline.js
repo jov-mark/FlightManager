@@ -7,7 +7,8 @@ Vue.component("airline-page",{
             company_name: "",
             company: {},
             new_company:{
-                name: ""
+                name: "",
+                version: 1
             },
             mode: "BROWSE"
         }
@@ -17,9 +18,15 @@ Vue.component("airline-page",{
             this.mode="EDIT"
             this.company_name = this.company.name
         },
-        update_company: function (){
-            if(this.company.name!=="")
-                this.mode="BROWSE"
+        save_edit: function (){
+            if(this.company.name!=="") {
+                if (this.company_name === this.company.name)    return
+
+                this.mode = "BROWSE"
+                axios
+                    .post('/rest/company/update',this.company)
+                    .then(response => console.log(response.data))
+            }
             else
                 console.log("Name can't be null!")
         },
@@ -37,8 +44,11 @@ Vue.component("airline-page",{
             if(this.new_company.name==="") {
                 console.log("Name can't be null!")
             }
-            else
-                console.log(this.new_company.name)
+            else{
+                axios
+                    .post('/rest/company/create',this.new_company)
+                    .then(response => response.data)
+            }
         },
         edit_ticket: function (ticket_id){
             router.push({ path: `/ticket/${ticket_id}` })
@@ -60,7 +70,7 @@ Vue.component("airline-page",{
 	<user-logout-form></user-logout-form>
     <input type="text" name="com_name" v-model="company.name" v-bind:disabled="mode=='BROWSE'">
     <button v-if="this.user==='admin'" v-on:click="edit_company()" v-bind:disabled="mode=='EDIT'">Edit</button>
-    <button v-if="this.user==='admin'" v-on:click="update_company()" v-bind:disabled="mode=='BROWSE'">Save</button>
+    <button v-if="this.user==='admin'" v-on:click="save_edit()" v-bind:disabled="mode=='BROWSE'">Save</button>
     <button v-if="this.user==='admin'" v-on:click="cancel_update()" v-bind:disabled="mode=='BROWSE'">Cancel</button>
     <button v-if="this.user==='admin'" v-on:click="delete_company()" v-bind:disabled="mode=='EDIT'">Delete company</button>
     <br>

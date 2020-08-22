@@ -9,7 +9,6 @@ public class Company {
         this.id = 0;
         this.name = "";
         this.version = 0;
-        System.out.println("YELLo");
     }
 
     public Company(int id, String name, int version) {

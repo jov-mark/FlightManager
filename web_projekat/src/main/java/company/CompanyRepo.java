@@ -1,6 +1,5 @@
 package company;
 
-import db.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -59,25 +58,26 @@ public class CompanyRepo {
         return company;
     }
 
-    public static void createUpdateCompany(Company company,boolean create){
-        String query = (create) ? "insert into company(name,version)" +
-                                    " values (\""+company.getName()+"\",1)"
-                                : "update company \n" +
-                                    "set name=\""+company.getName()+"\", version="+(company.getVersion()+1)+"\n" +
-                                    "where id="+company.getId();
-        try{
-            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
-            PreparedStatement pst = con.prepareStatement(query);
-            pst.execute();
-            pst.close();
-            con.close();
-        }catch (Exception e){
-            System.out.println(e);
-        }
+    public static boolean createCompany(Company company){
+        String query = "insert into company(name,version)\n" +
+                       " values ('"+company.getName()+"',"+company.getVersion()+")";
+        return preparedStatement(query);
+    }
+
+    public static boolean updateCompany(Company company){
+        String query = "update company \n" +
+                "set name='"+company.getName()+"', version="+company.getVersion()+"\n" +
+                "where id="+company.getId();
+        return preparedStatement(query);
     }
 
     public static boolean deleteCompany(String id){
         String query = "delete from company where id="+id;
+        return preparedStatement(query);
+    }
+
+
+    private static boolean preparedStatement(String query){
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             PreparedStatement pst = con.prepareStatement(query);
@@ -85,7 +85,7 @@ public class CompanyRepo {
             pst.close();
             con.close();
         }catch (Exception e){
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
         return true;

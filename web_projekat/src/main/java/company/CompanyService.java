@@ -12,12 +12,12 @@ public class CompanyService {
         return CompanyRepo.getCompanyById(id);
     }
 
-    public static void createCompany(Company company){
-        CompanyRepo.createUpdateCompany(company, true);
+    public static boolean createCompany(Company company){
+        return CompanyRepo.createCompany(company);
     }
 
-    public static void updateCompany(Company company){
-        CompanyRepo.createUpdateCompany(company, false);
+    public static boolean updateCompany(Company company){
+        return CompanyRepo.updateCompany(company);
     }
 
     public static boolean delete(String id){

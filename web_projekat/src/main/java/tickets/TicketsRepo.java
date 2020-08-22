@@ -281,7 +281,6 @@ public class TicketsRepo {
             st.executeUpdate(query,Statement.RETURN_GENERATED_KEYS);
             ResultSet rs = st.getGeneratedKeys();
             if(rs.next()){
-                System.out.println("usao");
                 id = rs.getInt(1);
             }
             rs.close();

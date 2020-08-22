@@ -21,14 +21,18 @@ public class CompanyController {
 
     public static Route createCompany = (Request req, Response res) ->{
         res.type("application/json");
-        CompanyService.createCompany(gson.fromJson(req.body(), Company.class));
-        return "OK";
+        Company company = gson.fromJson(req.body(),Company.class);
+        if(CompanyService.createCompany(company))
+            return "OK";
+        return "ERROR";
     };
 
     public static Route updateCompany = (Request req, Response res) ->{
         res.type("application/json");
-        CompanyService.updateCompany(gson.fromJson(req.body(), Company.class));
-        return "OK";
+        Company company = gson.fromJson(req.body(),Company.class);
+        if(CompanyService.updateCompany(company))
+            return "OK";
+        return "ERROR";
     };
 
     public static Route deleteCompany = (Request req, Response res) ->{
