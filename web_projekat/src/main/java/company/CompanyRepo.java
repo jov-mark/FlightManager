@@ -61,14 +61,33 @@ public class CompanyRepo {
     public static boolean createCompany(Company company){
         String query = "insert into company(name,version)\n" +
                        " values ('"+company.getName()+"',"+company.getVersion()+")";
-        return preparedStatement(query);
+
+        return checkName(company.getName()) && preparedStatement(query);
     }
 
     public static boolean updateCompany(Company company){
         String query = "update company \n" +
                 "set name='"+company.getName()+"', version="+company.getVersion()+"\n" +
                 "where id="+company.getId();
-        return preparedStatement(query);
+        return checkName(company.getName()) && preparedStatement(query);
+    }
+
+    private static boolean checkName(String name){
+        String query = "select id from company where name='"+name+"'";
+        try{
+            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            if(rs.next())
+                return false;
+            rs.close();
+            st.close();
+            con.close();
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public static boolean deleteCompany(String id){
@@ -78,6 +97,7 @@ public class CompanyRepo {
 
 
     private static boolean preparedStatement(String query){
+        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             PreparedStatement pst = con.prepareStatement(query);

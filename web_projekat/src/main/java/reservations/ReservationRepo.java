@@ -59,24 +59,38 @@ public class ReservationRepo {
         return reservationTable;
     }
 
-    public static void createReservation(TicketTable ticket, User user){
-//        TODO: dodaj useru u listi rezervacija
+    public static boolean createReservation(TicketTable ticket, String userId){
         String query = "\n" +
-                "insert into reservation\n" +
-                "values (true, "+ticket.getFlightId()+", "+ticket.getTicketId()+", "+user.getId()+", 1)";
-        try {
+                "insert into reservation (is_available,flight_id,ticket_id,user_id,version)\n" +
+                "values (true, "+ticket.getFlightId()+", "+ticket.getTicketId()+", "+userId+", 1)";
+        int id = getLastId(query);
+        query = "insert into user_reservations (user_id,reservation_id,version)\n" +
+                "values ("+userId+","+id+",1)";
+        return preparedStatement(query);
+    }
+
+    private static int getLastId(String query){
+        int id=0;
+        try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
-            PreparedStatement pst = con.prepareStatement(query);
-            pst.close();
+            Statement st = con.createStatement();
+            st.executeUpdate(query,Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = st.getGeneratedKeys();
+            if(rs.next()){
+                id = rs.getInt(1);
+            }
+            rs.close();
+            st.close();
             con.close();
         }catch (Exception e){
-            System.out.println(e);
+            e.printStackTrace();
         }
+        return id;
     }
 
     public static boolean deleteForTicket(String ticketId){
         List<Integer> reservationList = new ArrayList<>();
-        String query = "select id from reservation\n" +
+        String query = "select id from reservation " +
                 "where ticket_id="+ticketId;
         try {
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
@@ -122,6 +136,7 @@ public class ReservationRepo {
 
 
     private static boolean preparedStatement(String query){
+        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             PreparedStatement pst = con.prepareStatement(query);

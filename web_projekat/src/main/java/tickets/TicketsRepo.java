@@ -161,7 +161,7 @@ public class TicketsRepo {
         return preparedStatement(query);
     }
 
-    public static boolean deleteForCompany(String id){
+    public static List<Integer> getTicketsForCompany(String id){
         List<Integer> tickets = new ArrayList<>();
         String query = "select id from ticket where company_id="+id;
         try {
@@ -176,13 +176,8 @@ public class TicketsRepo {
             con.close();
         }catch (Exception e){
             e.printStackTrace();
-            return false;
         }
-        for(int ticket: tickets){
-            if(!deleteTicket(Integer.toString(ticket)))
-                return false;
-        }
-        return true;
+        return tickets;
     }
 
     public static Ticket getTicketById(String id){
@@ -293,6 +288,7 @@ public class TicketsRepo {
     }
 
     private static boolean preparedStatement(String query){
+        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             PreparedStatement pst = con.prepareStatement(query);

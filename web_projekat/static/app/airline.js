@@ -47,7 +47,7 @@ Vue.component("airline-page",{
             else{
                 axios
                     .post('/rest/company/create',this.new_company)
-                    .then(response => response.data)
+                    .then(response => console.log(response.data))
             }
         },
         edit_ticket: function (ticket_id){

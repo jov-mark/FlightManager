@@ -11,8 +11,8 @@ public class ReservationService {
         return ReservationRepo.getReservationsTable(id);
     }
 
-    public static void createReservation(TicketTable ticket, User user){
-        ReservationRepo.createReservation(ticket,user);
+    public static boolean createReservation(TicketTable ticket, String userId){
+        return ReservationRepo.createReservation(ticket,userId);
     }
 
     public static boolean deleteForTicket(String ticketId){

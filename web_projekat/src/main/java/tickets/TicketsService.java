@@ -35,8 +35,8 @@ public class TicketsService {
         return false;
     }
 
-    public static boolean deleteForCompany(String id){
-        return TicketsRepo.deleteForCompany(id);
+    public static List<Integer> getTicketsForCompany(String id){
+        return TicketsRepo.getTicketsForCompany(id);
     }
 
     public static boolean updateCount(String id, boolean inc){

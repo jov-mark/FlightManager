@@ -16,10 +16,13 @@ public class ReservationController {
     };
 
     public static Route createReservation = (Request req, Response res) ->{
-//        TODO: izvuci user
         res.type("application/json");
-        ReservationService.createReservation(gson.fromJson(req.body(), TicketTable.class),null);
-        return "OK";
+        String userId= req.params("id");
+        TicketTable ticket = gson.fromJson(req.body(),TicketTable.class);
+        if(ReservationService.createReservation(ticket, userId) &&
+                TicketsController.updateCount(Integer.toString(ticket.getTicketId()),false))
+            return "OK";
+        return "ERROR";
     };
 
     public static Route deleteReservation = (Request req, Response res) ->{

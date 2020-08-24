@@ -6,6 +6,9 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TicketsController {
 
     private static Gson gson = new Gson();
@@ -54,7 +57,13 @@ public class TicketsController {
     };
 
     public static boolean deleteForCompany(String id){
-        return TicketsService.deleteForCompany(id);
+        List<Integer> tickets = TicketsService.getTicketsForCompany(id);
+        for(int ticket: tickets){
+            if(ReservationController.deleteForTicket(Integer.toString(ticket))
+                    && TicketsService.deleteTicket(Integer.toString(ticket)))
+                return true;
+        }
+        return false;
     }
 
     public static boolean updateCount(String id, boolean inc){

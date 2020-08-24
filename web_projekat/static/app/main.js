@@ -2,6 +2,7 @@ Vue.component("main-page",{
     data: function (){
         return{
             user: "",
+            user_id: "",
             filter_way: "all",
             origin: "",
             dest: "",
@@ -9,6 +10,8 @@ Vue.component("main-page",{
             return_date: null,
             city_list: null,
             ticket_table: null,
+            date1: null,
+            date2: null,
             backup_table: [],
             backed: false
         }
@@ -59,8 +62,19 @@ Vue.component("main-page",{
         company: function(company_id){
             router.push({path: `/airline/${(company_id)}`})
         },
-        book: function(ticket_id){
-
+        moment: function (date) {
+            return moment(date);
+        },
+        date: function (date) {
+            return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+        },
+        book: function(ticket){
+            let new_reservation = Object.assign({}, ticket);
+            new_reservation.departDate = new Date()
+            if(!new_reservation.oneWay) new_reservation.returnDate = new Date()
+            axios
+                .post('/rest/reservation/create/'+this.user_id,new_reservation)
+                .then(response => console.log(response.data))
         },
         del: function (ticket_id){
             axios
@@ -69,7 +83,15 @@ Vue.component("main-page",{
             // location.reload()
         }
     },
+    filters: {
+        moment: function (date) {
+            return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+        }
+    },
     mounted(){
+        if(localStorage.getItem('user_id')!=null){
+            this.user_id = localStorage.getItem('user_id');
+        }
         if(localStorage.getItem('user')!=null){
             this.user = localStorage.getItem('user')
         }
@@ -124,7 +146,7 @@ Vue.component("main-page",{
         <td>{{t.oneWay}}</td>
         <td>{{t.origin.name}}</td>
         <td>{{t.destination.name}}</td>
-        <td>{{t.departDate}}</td>
+        <td >{{t.departDate}}</td>
         <td>{{t.returnDate}}</td>
         <td v-on:click="company(t.company.id)">{{t.company.name}}</td>
         <td>{{t.count}}</td>
@@ -141,7 +163,7 @@ Vue.component("main-page",{
         <td>{{t.returnDate}}</td>
         <td v-on:click="company(t.company.id)">{{t.company.name}}</td>
         <td>{{t.count}}</td>
-        <td>Book</td>
+        <td v-on:click="book(t)">Book</td>
         </tr>
 </tbody>
     
