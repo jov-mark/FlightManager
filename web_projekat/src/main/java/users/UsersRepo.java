@@ -1,10 +1,8 @@
 package users;
 
-import reservations.Reservation;
+import response.ServerResponse;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UsersRepo {
 
@@ -12,32 +10,6 @@ public class UsersRepo {
     private final static String USER = "root";
     private final static String PASSWORD = "anypassokha1001";
 
-
-    public static List<User> getUsers() {
-        List<User> users = new ArrayList<>();
-        try {
-            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
-            Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("select * from user");
-            while(rs.next()){
-                User user = new User();
-                user.setId(rs.getInt(1));
-                user.setUsername(rs.getString(2));
-                user.setPassword(rs.getString(3));
-                user.setType(rs.getBoolean(4));
-                user.setVersion(rs.getInt(5));
-
-                users.add(user);
-            }
-
-            con.close();
-
-        } catch (Exception e){
-            System.out.println(e);
-        }
-
-        return users;
-    }
 
     public static User login(String username, String password){
         User user = new User();
@@ -63,18 +35,15 @@ public class UsersRepo {
         return user;
     }
 
-    public static void register(User user){
+    public static ServerResponse register(User user){
         String query = "insert into user(user.username,user.password,user.type)" +
                 "values ('"+user.getUsername()+"','"+user.getPassword()+"',"+user.isType()+")";
-        try{
-            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
-            PreparedStatement pst = con.prepareStatement(query);
-            pst.execute();
-            pst.close();
-            con.close();
-        }catch (Exception e){
-            System.out.println(e);
+        ServerResponse response = new ServerResponse("user");
+        if(preparedStatement(query)){
+            response.setMessage("OK-C");
+            response.setExecuted(true);
         }
+        return response;
     }
 
     public static boolean getUser(String username){
@@ -93,12 +62,21 @@ public class UsersRepo {
         }catch (Exception e){
             System.out.println(e);
         }
-
         return exists;
     }
 
-    public static List<Reservation> getReservations(String id){
 
-        return null;
+    private static boolean preparedStatement(String query){
+        try{
+            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
+            PreparedStatement pst = con.prepareStatement(query);
+            pst.execute();
+            pst.close();
+            con.close();
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

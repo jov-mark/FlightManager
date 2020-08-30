@@ -1,6 +1,7 @@
 package company;
 
 import com.google.gson.Gson;
+import response.ServerResponse;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -22,24 +23,24 @@ public class CompanyController {
     public static Route createCompany = (Request req, Response res) ->{
         res.type("application/json");
         Company company = gson.fromJson(req.body(),Company.class);
-        if(CompanyService.createCompany(company))
-            return "OK";
-        return "ERROR";
+        ServerResponse response = CompanyService.createCompany(company);
+        return response;
     };
 
     public static Route updateCompany = (Request req, Response res) ->{
         res.type("application/json");
         Company company = gson.fromJson(req.body(),Company.class);
-        if(CompanyService.updateCompany(company))
-            return "OK";
-        return "ERROR";
+        ServerResponse response = CompanyService.updateCompany(company);
+        return response;
     };
 
     public static Route deleteCompany = (Request req, Response res) ->{
         res.type("application/json");
         String companyId = req.params("id");
-        if(TicketsController.deleteForCompany(companyId) && CompanyService.delete(companyId))
-            return "OK";
-        return "ERROR";
+
+        ServerResponse response = new ServerResponse("company");
+        if(TicketsController.deleteForCompany(companyId))
+            response = CompanyService.delete(companyId);
+        return response;
     };
 }

@@ -1,7 +1,7 @@
 package reservations;
 
+import response.ServerResponse;
 import tickets.TicketTable;
-import users.User;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class ReservationService {
         return ReservationRepo.getReservationsTable(id);
     }
 
-    public static boolean createReservation(TicketTable ticket, String userId){
+    public static ServerResponse createReservation(TicketTable ticket, String userId){
         return ReservationRepo.createReservation(ticket,userId);
     }
 
@@ -19,7 +19,7 @@ public class ReservationService {
         return ReservationRepo.deleteForTicket(ticketId);
     }
 
-    public static boolean deleteReservation(String id){
+    public static ServerResponse deleteReservation(String id){
         return ReservationRepo.deleteReservation(id);
     }
 

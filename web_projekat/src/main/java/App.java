@@ -19,7 +19,9 @@ public class App {
         staticFiles.externalLocation(new File("./static").getCanonicalPath());
 
 //      Tickets data:
-        get("/rest/ticket/table", TicketsController.getTicketsTable);
+        get("/rest/ticket/table/:page", TicketsController.getTicketsTable);
+        post("/rest/ticket/filterTable", TicketsController.filterTable);
+        get("/rest/ticket/getFilteredTable", TicketsController.getFilteredTable);
         get("/rest/ticket/get/:id", TicketsController.getTicketById);
         get("/rest/ticket/company/:id", TicketsController.getTicketsTableForCompany);
         post("/rest/ticket/create", TicketsController.createTicket);

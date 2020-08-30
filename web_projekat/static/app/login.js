@@ -26,7 +26,6 @@ Vue.component("login-page",{
                     window.location.replace("/")
                 },
                 error: function (data){
-                    console.log("Error:")
                     console.log(data)
                 }
             })
@@ -35,11 +34,17 @@ Vue.component("login-page",{
     mounted () {},
     template:`
 <div>
-    <label for="username">Username</label>
-    <input type="text" name="username" v-model="username"/>
-    <label for="password">Password</label>
-    <input type="text" name="password" v-model="password"/>
-    <button v-on:click="login()">Login</button> 
+    <table>
+    <tr>
+        <td><label for="username">Username:</label></td>
+        <td><input type="text" name="username" v-model="username"/></td>
+    </tr>
+    <tr>
+        <td><label for="password">Password:</label></td>
+        <td><input type="text" name="password" v-model="password"/></td>
+    </tr>
+    </table>
+    <button v-on:click="login()">Login</button>
 </div>
     `
 });

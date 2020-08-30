@@ -1,5 +1,7 @@
 package company;
 
+import response.ServerResponse;
+
 import java.util.List;
 
 public class CompanyService {
@@ -12,15 +14,15 @@ public class CompanyService {
         return CompanyRepo.getCompanyById(id);
     }
 
-    public static boolean createCompany(Company company){
+    public static ServerResponse createCompany(Company company){
         return CompanyRepo.createCompany(company);
     }
 
-    public static boolean updateCompany(Company company){
+    public static ServerResponse updateCompany(Company company){
         return CompanyRepo.updateCompany(company);
     }
 
-    public static boolean delete(String id){
+    public static ServerResponse delete(String id){
         return CompanyRepo.deleteCompany(id);
     }
 }

@@ -1,5 +1,7 @@
 package tickets;
 
+import response.ServerResponse;
+
 import java.util.List;
 
 public class TicketsService {
@@ -8,8 +10,16 @@ public class TicketsService {
         return TicketsRepo.getTickets();
     }
 
-    public static List<TicketTable> getTicketsTable(){
-        return TicketsRepo.getTicketsTable();
+    public static List<TicketTable> getFilteredTable(){
+        return TicketsRepo.getFilteredTable();
+    }
+
+    public static List<TicketTable> getTicketsTable(String page){
+        return TicketsRepo.getTicketsTable(Integer.parseInt(page));
+    }
+
+    public static boolean setFilter(TableFilter filter){
+        return TicketsRepo.setFilter(filter);
     }
 
     public static List<TicketTable> getTicketsTableForCompany(String id){
@@ -20,19 +30,19 @@ public class TicketsService {
         return TicketsRepo.getTicketById(id);
     }
 
-    public  static boolean updateTicket(Ticket ticket){
+    public  static ServerResponse updateTicket(Ticket ticket){
         return TicketsRepo.updateTicket(ticket);
     }
 
-    public static boolean deleteTicket(String id){
+    public static ServerResponse deleteTicket(String id){
         return TicketsRepo.deleteTicket(id);
     }
 
-    public static boolean createTicket(Ticket ticket){
+    public static ServerResponse createTicket(Ticket ticket){
         if(validateTicket(ticket)) {
             return TicketsRepo.createTicket(ticket);
         }
-        return false;
+        return new ServerResponse("ticket");
     }
 
     public static List<Integer> getTicketsForCompany(String id){

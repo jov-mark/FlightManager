@@ -2,10 +2,8 @@ package reservations;
 
 import city.City;
 import company.Company;
-import db.DBConnection;
-import tickets.Ticket;
+import response.ServerResponse;
 import tickets.TicketTable;
-import users.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -59,14 +57,19 @@ public class ReservationRepo {
         return reservationTable;
     }
 
-    public static boolean createReservation(TicketTable ticket, String userId){
+    public static ServerResponse createReservation(TicketTable ticket, String userId){
         String query = "\n" +
                 "insert into reservation (is_available,flight_id,ticket_id,user_id,version)\n" +
                 "values (true, "+ticket.getFlightId()+", "+ticket.getTicketId()+", "+userId+", 1)";
         int id = getLastId(query);
         query = "insert into user_reservations (user_id,reservation_id,version)\n" +
                 "values ("+userId+","+id+",1)";
-        return preparedStatement(query);
+        ServerResponse response = new ServerResponse("reservation");
+        if(preparedStatement(query)){
+            response.setMessage("OK-C");
+            response.setExecuted(true);
+        }
+        return response;
     }
 
     private static int getLastId(String query){
@@ -104,15 +107,20 @@ public class ReservationRepo {
             return false;
         }
         for(int res: reservationList){
-            if(!deleteReservation(Integer.toString(res)))
+            if(!deleteReservation(Integer.toString(res)).isExecuted())
                 return false;
         }
         return true;
     }
 
-    public static boolean deleteReservation(String id){
-        return preparedStatement("delete from user_reservations where reservation_id="+id)
-                && preparedStatement("delete from reservation where id="+id);
+    public static ServerResponse deleteReservation(String id){
+        ServerResponse response = new ServerResponse("reservation");
+        if(preparedStatement("delete from user_reservations where reservation_id="+id)
+                && preparedStatement("delete from reservation where id="+id)){
+            response.setExecuted(true);
+            response.setMessage("OK-D");
+        }
+        return response;
     }
 
     public static String getTicketId(String id){

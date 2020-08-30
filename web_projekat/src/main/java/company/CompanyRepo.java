@@ -1,6 +1,8 @@
 package company;
 
 
+import response.ServerResponse;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,18 +60,31 @@ public class CompanyRepo {
         return company;
     }
 
-    public static boolean createCompany(Company company){
+    public static ServerResponse createCompany(Company company){
         String query = "insert into company(name,version)\n" +
                        " values ('"+company.getName()+"',"+company.getVersion()+")";
-
-        return checkName(company.getName()) && preparedStatement(query);
+        ServerResponse response = new ServerResponse("company");
+        if(checkName(company.getName())){
+            response.setMessage("EX");
+        }   else if(preparedStatement(query)){
+            response.setMessage("OK-C");
+            response.setExecuted(true);
+        }
+        return response;
     }
 
-    public static boolean updateCompany(Company company){
+    public static ServerResponse updateCompany(Company company){
         String query = "update company \n" +
                 "set name='"+company.getName()+"', version="+company.getVersion()+"\n" +
                 "where id="+company.getId();
-        return checkName(company.getName()) && preparedStatement(query);
+        ServerResponse response = new ServerResponse("company");
+        if(checkName(company.getName())){
+            response.setMessage("EX");
+        }else if(preparedStatement(query)){
+            response.setMessage("OK-U");
+            response.setExecuted(true);
+        }
+        return response;
     }
 
     private static boolean checkName(String name){
@@ -90,14 +105,18 @@ public class CompanyRepo {
         return true;
     }
 
-    public static boolean deleteCompany(String id){
+    public static ServerResponse deleteCompany(String id){
         String query = "delete from company where id="+id;
-        return preparedStatement(query);
+        ServerResponse response = new ServerResponse("company");
+        if(preparedStatement(query)){
+            response.setExecuted(true);
+            response.setMessage("OK-D");
+        }
+        return response;
     }
 
 
     private static boolean preparedStatement(String query){
-        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             PreparedStatement pst = con.prepareStatement(query);

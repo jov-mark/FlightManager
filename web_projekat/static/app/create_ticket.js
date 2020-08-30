@@ -5,6 +5,10 @@ Vue.component("create-ticket",{
             flight_list: null,
             selectedCompany: null,
             selectedFlight: null,
+            response: {
+                type: "",
+                message: "",
+            },
             ticket: {
                 oneWay: "",
                 company: {},
@@ -31,7 +35,8 @@ Vue.component("create-ticket",{
             }
             axios
                 .post('/rest/ticket/create', this.ticket)
-                .then(response => console.log(response.data))
+                .then(response => this.response = response)
+            parseResponse(this.response.type,this.response.message)
         },
         validateInput: function (){
             const isOneWay = this.ticket.oneWay!==""

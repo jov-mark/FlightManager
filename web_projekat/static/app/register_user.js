@@ -1,6 +1,7 @@
 Vue.component("user-form",{
     data: function (){
         return{
+            serverResponse: null,
             user: {
                 username:"",
                 password:"",
@@ -10,12 +11,12 @@ Vue.component("user-form",{
     },
     methods:{
         register: function (){
-            if(this.validateInput())
+            if(this.validateInput()) {
                 axios
-                    .post('/rest/user/register',this.user)
-                    .then(response => console.log(response.data))
-            else
-                console.log("Input is invalid!")
+                    .post('/rest/user/register', this.user)
+                    .then(response => parseResponse("user",response.data))
+            }   else
+                    parseResponse("user","ER-L")
         },
         validateInput: function () {
             const isName = this.user.username!==""

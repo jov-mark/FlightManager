@@ -1,6 +1,7 @@
 package reservations;
 
 import com.google.gson.Gson;
+import response.ServerResponse;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -19,20 +20,26 @@ public class ReservationController {
         res.type("application/json");
         String userId= req.params("id");
         TicketTable ticket = gson.fromJson(req.body(),TicketTable.class);
-        if(ReservationService.createReservation(ticket, userId) &&
-                TicketsController.updateCount(Integer.toString(ticket.getTicketId()),false))
-            return "OK";
-        return "ERROR";
+
+        ServerResponse response = ReservationService.createReservation(ticket,userId);
+        if(response.isExecuted() && !TicketsController.updateCount(Integer.toString(ticket.getTicketId()),false)){
+            response.setMessage("ER");
+            response.setExecuted(false);
+        }
+        return response;
     };
 
     public static Route deleteReservation = (Request req, Response res) ->{
         res.type("application/json");
         String reservationId = req.params("id");
         String ticketId = ReservationService.getTicketId(reservationId);
-        if(ReservationService.deleteReservation(reservationId)
-                && TicketsController.updateCount(ticketId,true))
-            return "OK";
-        return "ERROR";
+
+        ServerResponse response = ReservationService.deleteReservation(reservationId);
+        if(response.isExecuted() && !TicketsController.updateCount(ticketId, true)) {
+            response.setMessage("ER");
+            response.setExecuted(false);
+        }
+        return response;
     };
 
     public static boolean deleteForTicket(String ticketId){

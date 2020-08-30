@@ -1,7 +1,0 @@
-{
-  "name": "web_projekat",
-  "version": "1.0.0",
-  "dependencies": {
-    "moment": "^2.27.0"
-  }
-}
