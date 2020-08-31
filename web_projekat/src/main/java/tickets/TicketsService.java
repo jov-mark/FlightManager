@@ -10,8 +10,8 @@ public class TicketsService {
         return TicketsRepo.getTickets();
     }
 
-    public static List<TicketTable> getFilteredTable(){
-        return TicketsRepo.getFilteredTable();
+    public static List<TicketTable> getFilteredTable(String page){
+        return TicketsRepo.getFilteredTable(Integer.parseInt(page));
     }
 
     public static List<TicketTable> getTicketsTable(String page){
@@ -22,8 +22,8 @@ public class TicketsService {
         return TicketsRepo.setFilter(filter);
     }
 
-    public static List<TicketTable> getTicketsTableForCompany(String id){
-        return TicketsRepo.getTicketsTableForCompany(id);
+    public static List<TicketTable> getTicketsTableForCompany(String id, int page){
+        return TicketsRepo.getTicketsTableForCompany(id,page);
     }
 
     public static Ticket getTicketById(String id){

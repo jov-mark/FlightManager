@@ -13,98 +13,77 @@ Vue.component("ticket-table",{
             },
             user: "",
             userId: "",
-            filterWay: "all",
-            origin: "",
-            dest: "",
-            departDate: null,
-            returnDate: null,
             cityList: null,
             table: null,
-            tableSize: null,
             date1: "",
             date2: "",
-            backupTable: [],
-            backed: false,
-            userFilter: false
+            way: "all"
         }
     },
     methods:{
         filterTable: function (){
+            if(Date.parse(this.date1)-Date.parse(this.date2)>=0) {
+                alert("Return date must be after departure date!")
+                return
+            }
             this.tableFilter.active = true
             if(this.date1!=="")
                 this.tableFilter.departDate = this.date1
             this.tableFilter.returnDate = (this.date2==="" || this.tableFilter.way==="oneWay")?new Date():this.date2
-            console.log(this.tableFilter)
             axios
                 .post('/rest/ticket/filterTable',this.tableFilter)
             axios
-                .get('/rest/ticket/getFilteredTable')
-                .then(response => console.log(response.data))
+                .get('/rest/ticket/getFilteredTable/'+1)
+                .then(response => this.table = response.data)
+        },
+        filterWay: function (){
+            if(this.tableFilter.way!==this.way){
+                this.tableFilter.way = this.way
+                axios
+                    .post('/rest/ticket/filterTable',this.tableFilter)
+                axios
+                    .get('/rest/ticket/getFilteredTable/'+1)
+                    .then(response => this.table = response.data)
+            }
         },
         clearSearch: function (){
             this.tablePage = 1
             this.date1 = ""
             this.date2 = ""
+            this.way = "all"
             this.tableFilter = {
                 originCity: 0,
                 destCity: 0,
                 departDate: new Date(),
                 returnDate: new Date(),
+                way: "all",
                 active: false
             }
             axios
-                .get('/rest/ticket/table/'+this.tablePage)
+                .post('/rest/ticket/filterTable',this.tableFilter)
+            axios
+                .get('/rest/ticket/getFilteredTable/'+1)
                 .then(response => this.table = response.data)
         },
-        reset: function (){
-            if(!this.backed){
-                this.backupTable = [...this.table]
-                this.backed = true
-            }
-            this.table = [...this.backupTable]
+        nextPage: function (){
+            this.tablePage++
+            axios
+                .get('/rest/ticket/getFilteredTable/'+this.tablePage)
+                .then(response => (this.table = response.data))
         },
-        search: function (){
-            this.userFilter = true
-            this.reset()
-
-            if(Date.parse(this.departDate)-Date.parse(this.returnDate)>=0) {
-                console.log("NOPE MATORI")
-                return
-            }
-
-            if(this.origin!=""){
-                this.table = this.table.filter(ticket => ticket.origin.id===this.origin);
-            }
-            if(this.dest!="") {
-                this.table = this.table.filter(ticket => ticket.destination.id === this.dest);
-            }
-            if(this.departDate!=null){
-                this.table = this.table.filter(ticket =>
-                    Date.parse(ticket.departDate) >= Date.parse(this.departDate));
-            }
-            if(this.returnDate!=null){
-                this.table = this.table.filter(ticket =>
-                    Date.parse((ticket.returnDate==null)?((this.returnDate<ticket.departDate)?ticket.departDate:this.returnDate):ticket.returnDate) <= Date.parse(this.returnDate));
-            }
-            this.tableSize = this.table.length
-        },
-        filter_table: function (){
-            this.reset()
-            if(this.filterWay=="oneWay"){
-                this.table = this.table.filter(ticket => ticket.oneWay)
-            }
-            else if(this.filterWay=="round"){
-                this.table = this.table.filter(ticket => !ticket.oneWay)
-            }
-            this.tableSize = this.table.length
-        },
-        edit: function (ticket_id){
-            router.push({ path: `/ticket/${ticket_id}` })
+        prevPage: function (){
+            this.tablePage--
+            axios
+                .get('/rest/ticket/getFilteredTable/'+this.tablePage)
+                .then(response => (this.table = response.data))
         },
         company: function(company_id){
             router.push({path: `/airline/${(company_id)}`})
         },
-        book: function(ticket){
+        editTicket: function (ticket_id){
+            router.push({ path: `/ticket/${ticket_id}` })
+        },
+        bookTicket: function(ticket){
             let new_reservation = Object.assign({}, ticket);
             new_reservation.departDate = new Date()
             if(!new_reservation.oneWay) new_reservation.returnDate = new Date()
@@ -112,37 +91,28 @@ Vue.component("ticket-table",{
                 .post('/rest/reservation/create/'+this.userId,new_reservation)
                 .then(response => console.log(response.data))
         },
-        del: function (ticket_id){
+        deleteTicket: function (ticket_id){
             axios
                 .delete('/rest/ticket/delete/'+ticket_id)
                 .then(response => console.log(response.data))
             location.reload()
         },
-        nextPage: function (){
-            this.tablePage++
-            axios
-                .get('/rest/ticket/table/'+this.tablePage)
-                .then(response => (this.table = response.data))
-            this.tableSize = this.table.length
-
-        },
-        prevPage: function (){
-            this.tablePage--
-            axios
-                .get('/rest/ticket/table/'+this.tablePage)
-                .then(response => (this.table = response.data))
-            this.tableSize = this.table.length
+        checkLast: function (){
+            if(this.table===null)   return true
+            return this.table.length<5
         }
     },
     mounted() {
         if(this.$route.path==='/')
             this.main = true
-        if(localStorage.getItem('userId')!=null){
-            this.userId = localStorage.getItem('userId');
+        if(localStorage.getItem('user_id')!=null){
+            this.userId = localStorage.getItem('user_id');
         }
         if(localStorage.getItem('user')!=null){
             this.user = localStorage.getItem('user')
         }
+        axios
+            .post('/rest/ticket/filterTable',this.tableFilter)
         axios
             .get('/rest/ticket/table/'+this.tablePage)
             .then(response => (this.table = response.data))
@@ -183,7 +153,7 @@ Vue.component("ticket-table",{
     </tr>
     </table>
     <label for="filter">Filter tickets:</label>
-    <select name="filter" v-model="tableFilter.way">
+    <select name="filter" v-model="way" v-on:click="filterWay()">
         <option value="all" selected="selected">All tickets</option>
         <option value="oneWay">One way</option>
         <option value="round">Round trip</option>
@@ -201,32 +171,34 @@ Vue.component("ticket-table",{
     </tr>
     <tbody v-if="this.user==='admin'">
         <tr v-for="t in table">
-        <td>{{t.oneWay}}</td>
+        <td v-if="t.oneWay">Yes</td>
+        <td v-else>No</td>
         <td>{{t.origin.name}}</td>
         <td>{{t.destination.name}}</td>
         <td >{{t.departDate}}</td>
         <td>{{t.returnDate}}</td>
         <td v-on:click="company(t.company.id)">{{t.company.name}}</td>
         <td>{{t.count}}</td>
-        <td v-on:click="del(t.ticketId)">Delete</td>
-        <td v-on:click="edit(t.ticketId)">Edit</td>
+        <td v-on:click="deleteTicket(t.ticketId)">Delete</td>
+        <td v-on:click="editTicket(t.ticketId)">Edit</td>
     </tr>
     </tbody>
     <tbody v-else>
         <tr v-for="t in table">
-        <td>{{t.oneWay}}</td>
+        <td v-if="t.oneWay">Yes</td>
+        <td v-else>No</td>
         <td>{{t.origin.name}}</td>
         <td>{{t.destination.name}}</td>
         <td>{{t.departDate}}</td>
         <td>{{t.returnDate}}</td>
         <td v-on:click="company(t.company.id)">{{t.company.name}}</td>
         <td>{{t.count}}</td>
-        <td v-on:click="book(t)">Book</td>
+        <td v-on:click="bookTicket(t)">Book</td>
         </tr>
     </tbody>
     <button v-on:click="prevPage()" :disabled="tablePage===1"> < </button>
     <label>{{tablePage}}</label>
-    <button v-on:click="nextPage()" :disabled="5===tableSize"> > </button>
+    <button v-on:click="nextPage()" :disabled="checkLast()"> > </button>
     </table>
      </div>
     `

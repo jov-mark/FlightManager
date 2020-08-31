@@ -4,24 +4,24 @@ import java.util.List;
 
 public class Pagination {
 
-    List<TicketTable> ticketTable;
+    List<TicketTable> table;
     int num;
     int pageInfo;
 
-    public Pagination(List<TicketTable> ticketTable){
-        this.ticketTable = ticketTable;
+    public Pagination(List<TicketTable> table){
+        this.table = table;
         pageInfo = 1;
         num = 5;
     }
 
-    public List<TicketTable> getTicketTable(int pageInfo){
-        if(ticketTable.size()==0)   return ticketTable;
-        int pages = ticketTable.size()/num+1;
-        if(ticketTable.size()%num==0)   pages--;
+    public List<TicketTable> getSubTable(int pageInfo){
+        if(table.size()<=num)   return table;
+        int pages = table.size()/num+1;
+        if(table.size()%num==0)   pages--;
         int from = num*(pageInfo-1);
-        int to = (pageInfo==pages)?ticketTable.size()-1:pageInfo*num;
+        int to = (pageInfo==pages)?table.size():pageInfo*num;
 
-        return ticketTable.subList(from,to);
+        return table.subList(from,to);
     }
 
 }

@@ -2,6 +2,7 @@ package tickets;
 
 import city.City;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TableFilter {
@@ -54,8 +55,8 @@ public class TableFilter {
         this.returnDate = returnDate;
     }
 
-    public boolean getReturn(){
-        return departDate.compareTo(returnDate)<0;
+    public boolean getReturn(SimpleDateFormat format){
+        return format.format(departDate).compareTo(format.format(returnDate))<0;
     }
 
     public String getWay() {

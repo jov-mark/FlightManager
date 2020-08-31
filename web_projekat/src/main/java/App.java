@@ -21,9 +21,9 @@ public class App {
 //      Tickets data:
         get("/rest/ticket/table/:page", TicketsController.getTicketsTable);
         post("/rest/ticket/filterTable", TicketsController.filterTable);
-        get("/rest/ticket/getFilteredTable", TicketsController.getFilteredTable);
+        get("/rest/ticket/getFilteredTable/:page", TicketsController.getFilteredTable);
         get("/rest/ticket/get/:id", TicketsController.getTicketById);
-        get("/rest/ticket/company/:id", TicketsController.getTicketsTableForCompany);
+        get("/rest/ticket/company", TicketsController.getTicketsTableForCompany);
         post("/rest/ticket/create", TicketsController.createTicket);
         post("/rest/ticket/update", TicketsController.updateTicket);
         delete("/rest/ticket/delete/:id", TicketsController.deleteTicket);

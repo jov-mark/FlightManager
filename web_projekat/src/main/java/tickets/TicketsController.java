@@ -29,7 +29,8 @@ public class TicketsController {
 
     public static Route getFilteredTable = (Request req, Response res) ->{
         res.type("application/json");
-        return gson.toJson(TicketsService.getFilteredTable());
+        String page = req.params("page");
+        return gson.toJson(TicketsService.getFilteredTable(page));
     };
 
     public static Route getTicketsTable = (Request req, Response res) ->{
@@ -39,7 +40,9 @@ public class TicketsController {
 
     public static Route getTicketsTableForCompany = (Request req, Response res) ->{
         res.type("application/json");
-        return gson.toJson(TicketsService.getTicketsTableForCompany(req.params("id")));
+        String companyId = req.queryParams("companyId");
+        int page = Integer.parseInt(req.queryParams("page"));
+        return gson.toJson(TicketsService.getTicketsTableForCompany(companyId,page));
     };
 
     public static Route updateTicket = (Request req, Response res) ->{

@@ -75,10 +75,9 @@ public class TicketsRepo {
         return true;
     }
 
-    public static List<TicketTable> getFilteredTable(){
-        System.out.println(queryFilter);
+    public static List<TicketTable> getFilteredTable(int page){
+//        System.out.println(queryFilter);
         if(queryFilter.equals("")) return null;
-        int page = 1;
         List<TicketTable> table = new ArrayList<>();
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
@@ -118,9 +117,8 @@ public class TicketsRepo {
         }catch (Exception e){
             System.out.println(e);
         }
-        return table;
-//        Pagination pagination = new Pagination(table);
-//        return pagination.getTicketTable(page);
+        Pagination pagination = new Pagination(table);
+        return pagination.getSubTable(page);
     }
 
     public static List<TicketTable> getTicketsTable(int page){
@@ -164,10 +162,10 @@ public class TicketsRepo {
             System.out.println(e);
         }
         Pagination pagination = new Pagination(table);
-        return pagination.getTicketTable(page);
+        return pagination.getSubTable(page);
     }
 
-    public static List<TicketTable> getTicketsTableForCompany(String id){
+    public static List<TicketTable> getTicketsTableForCompany(String id, int page){
         List<TicketTable> table = new ArrayList<>();
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
@@ -207,8 +205,8 @@ public class TicketsRepo {
         }catch (Exception e){
             System.out.println(e);
         }
-
-        return table;
+        Pagination pagination = new Pagination(table);
+        return pagination.getSubTable(page);
     }
 
     public static boolean updateCount(String id, boolean inc){
@@ -391,7 +389,7 @@ public class TicketsRepo {
                 ""+((filter.getOriginCity()!=0)?"c1.id="+filter.getOriginCity()+" AND ":"")+"" +
                 ""+((filter.getDestCity()!=0)?"c2.id="+filter.getDestCity()+" AND ":"")+"" +
                 "ticket.departure BETWEEN '"+dateFormat.format(filter.getDepartDate())+"' AND '"+new Date(2100,12,31)+"'" +
-                ""+((filter.getReturn())?" AND ticket.return_date BETWEEN '" +
+                ""+((filter.getReturn(dateFormat))?" AND ticket.return_date BETWEEN '" +
                 ""+dateFormat.format(filter.getDepartDate())+"' AND '"+dateFormat.format(filter.getReturnDate())+"'":"");
     }
 
