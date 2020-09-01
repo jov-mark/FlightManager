@@ -45,6 +45,7 @@ public class ReservationRepo {
                 reservation.setCompany(company);
                 reservation.setOrigin(origin);
                 reservation.setDestination(dest);
+                reservation.setVersion(rs.getInt(17));
 
                 reservationTable.add(reservation);
             }
@@ -165,7 +166,7 @@ public class ReservationRepo {
     private static String getReservationTableQuery="" +
             "select reservation.id, reservation.is_available, reservation.version, ticket.id, ticket.one_way, \n" +
             "ticket.departure, ticket.return_date, ticket.count, ticket.version, company.id, company.name, company.version, \n" +
-            "c1.id, c1.name, c2.id, c2.name\n" +
+            "c1.id, c1.name, c2.id, c2.name, ticket.version\n" +
             "from reservation\n" +
             "inner join ticket\n" +
             "on ticket.id=reservation.ticket_id\n" +

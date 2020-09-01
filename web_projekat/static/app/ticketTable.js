@@ -95,7 +95,7 @@ Vue.component("ticket-table",{
             if(!newReservation.oneWay) newReservation.returnDate = new Date()
             axios
                 .post('/rest/reservation/create/'+this.userId,newReservation)
-                .then(response => parseResponse(response.data.type, response.data.message))
+                .then(response => this.handleResponse("book",response.data))
                 .catch(function (error){
                     if(error.response)
                         parseResponse(error.response.data.type,error.response.data.message)
@@ -119,8 +119,8 @@ Vue.component("ticket-table",{
         handleResponse(type,data){
             switch (type){
                 case "book":
-                    let ticket = this.table
-                    parseResponse(data.type,data.message)
+                    localStorage.setItem('res',(parseInt(localStorage.getItem('res'))+1).toString())
+                    location.reload()
                     break
                 case "delete":
                     axios
@@ -200,13 +200,13 @@ Vue.component("ticket-table",{
     </div>
     <table border="1">
     <tr>
-        <td>One-way</td>
-        <td>Origin</td>
-        <td>Destination</td>
-        <td>Depart</td>
-        <td>Return</td>
-        <td>Company</td>
-        <td>Count</td>
+        <th>One-way</th>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>Depart</th>
+        <th>Return</th>
+        <th>Company</th>
+        <th>Count</th>
     </tr>
     <tbody v-if="this.user==='admin'">
         <tr v-for="t in table">

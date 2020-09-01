@@ -117,7 +117,7 @@ public class TicketsController {
         return true;
     }
 
-    public static boolean updateCount(String id, boolean inc){
-        return TicketsService.updateCount(id,inc);
+    public static boolean updateCount(String id, boolean inc, int version){
+        return TicketsService.updateCount(id,inc, version);
     }
 }

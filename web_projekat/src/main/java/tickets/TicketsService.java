@@ -6,10 +6,6 @@ import java.util.List;
 
 public class TicketsService {
 
-    public static List<Ticket> getTickets(){
-        return TicketsRepo.getTickets();
-    }
-
     public static List<TicketTable> getFilteredTable(String page){
         return TicketsRepo.getFilteredTable(Integer.parseInt(page));
     }
@@ -57,8 +53,8 @@ public class TicketsService {
         return TicketsRepo.checkVersion(ticketId,currVersion);
     }
 
-    public static boolean updateCount(String id, boolean inc){
-        return TicketsRepo.updateCount(id,inc);
+    public static boolean updateCount(String id, boolean inc, int version){
+        return TicketsRepo.updateCount(id,inc, version);
     }
 
     private static boolean validateTicket(Ticket ticket){

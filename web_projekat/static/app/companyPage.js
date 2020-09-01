@@ -90,6 +90,10 @@ Vue.component("airline-page",{
                 case "delete":
                     router.push({path: `/`})
                     break
+                case "book":
+                    localStorage.setItem('res',(parseInt(localStorage.getItem('res'))+1).toString())
+                    location.reload()
+                    break
             }
             parseResponse(data.type,data.message)
         },
@@ -118,7 +122,7 @@ Vue.component("airline-page",{
             if(!newReservation.oneWay) newReservation.returnDate = new Date()
             axios
                 .post('/rest/reservation/create/'+this.userId,newReservation)
-                .then(response => parseResponse(response.data.type,response.data.message))
+                .then(response => this.handleResponse("book",response.data))
                 .catch(function (error){
                     if(error.response)
                         parseResponse(error.response.data.type,error.response.data.message)

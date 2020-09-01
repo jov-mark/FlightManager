@@ -38,6 +38,14 @@ public class ReservationTable extends TicketTable {
         isAvailable = available;
     }
 
+    public int getTicketId(){
+        return super.getTicketId();
+    }
+
+    public int getTicketVersion(){
+        return super.getVersion();
+    }
+
     @Override
     public String toString() {
         return "ReservationTable{" +

@@ -38,7 +38,7 @@ public class App {
 //        Reservations data:
         get("/rest/reservation/table/:id", ReservationController.getReservationsTable);
         post("/rest/reservation/create/:id", ReservationController.createReservation);
-        delete("/rest/reservation/delete/:id", ReservationController.deleteReservation);
+        post("/rest/reservation/delete", ReservationController.deleteReservation);
 
 //        Flight data:
         get("/rest/flight/getAll", FlightsController.getFlights);

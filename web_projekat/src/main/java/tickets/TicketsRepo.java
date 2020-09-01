@@ -8,6 +8,7 @@ import response.ServerResponse;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TicketsRepo {
@@ -19,56 +20,6 @@ public class TicketsRepo {
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private static String queryFilter = "";
-
-    public static List<Ticket> getTickets(){
-        List<Ticket> tickets = new ArrayList<>();
-        try{
-            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
-            Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery(queryAllTickets);
-
-            while(rs.next()) {
-                Company com = new Company();
-                com.setId(rs.getInt(2));
-                com.setName(rs.getString(3));
-                com.setVersion(rs.getInt(4));
-
-                City origin = new City();
-                origin.setId(rs.getInt(11));
-                origin.setName(rs.getString(12));
-                City dest = new City();
-                dest.setId(rs.getInt(13));
-                dest.setName(rs.getString(14));
-
-                Flight flight = new Flight();
-                flight.setId(rs.getInt(9));
-                flight.setOriginCity(origin);
-                flight.setDestCity(dest);
-                flight.setName();
-                flight.setVersion(rs.getInt(10));
-
-                Ticket ticket = new Ticket();
-                ticket.setId(rs.getInt(1));
-                ticket.setOneWay(rs.getBoolean(5));
-                ticket.setDepartureDate(rs.getDate(6));
-                ticket.setReturnDate(rs.getDate(7));
-                ticket.setCount(rs.getInt(8));
-                ticket.setVersion(rs.getInt(15));
-                ticket.setCompany(com);
-                ticket.setFlight(flight);
-
-                tickets.add(ticket);
-            }
-            rs.close();
-            st.close();
-            con.close();
-
-        }catch (Exception e){
-            System.out.println(e);
-        }
-
-        return tickets;
-    }
 
     public static boolean setFilter(TableFilter filter){
         setFilterQuery(filter);
@@ -118,6 +69,7 @@ public class TicketsRepo {
             System.out.println(e);
             return null;
         }
+        cleanTable(table);
         Pagination pagination = new Pagination(table);
         return pagination.getSubTable(page);
     }
@@ -164,6 +116,7 @@ public class TicketsRepo {
         }catch (Exception e){
             System.out.println(e);
         }
+        cleanTable(table);
         Pagination pagination = new Pagination(table);
         return pagination.getSubTable(page);
     }
@@ -209,12 +162,13 @@ public class TicketsRepo {
         }catch (Exception e){
             System.out.println(e);
         }
+        cleanTable(table);
         Pagination pagination = new Pagination(table);
         return pagination.getSubTable(page);
     }
 
-    public static boolean updateCount(String id, boolean inc){
-        String query = "update ticket set count=count"+(inc?"+1":"-1")+" where id="+id;
+    public static boolean updateCount(String id, boolean inc, int version){
+        String query = "update ticket set count=count"+(inc?"+1":"-1")+", version="+(version+1)+" where id="+id;
         return preparedStatement(query);
     }
 
@@ -350,6 +304,16 @@ public class TicketsRepo {
             response.setExecuted(true);
         }
         return response;
+    }
+
+    private static void cleanTable(List<TicketTable> table){
+        Iterator itr = table.iterator();
+        while (itr.hasNext())
+        {
+            TicketTable ticket = (TicketTable)itr.next();
+            if(ticket.getCount()==0)
+                itr.remove();
+        }
     }
 
     private static int getLastId(String query){

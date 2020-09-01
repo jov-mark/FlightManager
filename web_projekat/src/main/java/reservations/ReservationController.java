@@ -32,7 +32,7 @@ public class ReservationController {
         ServerResponse response = new ServerResponse();
         if(TicketsController.checkVersion(Integer.toString(ticket.getTicketId()),ticket.getVersion())) {
             response = ReservationService.createReservation(ticket, userId);
-            if (response.isExecuted() && !TicketsController.updateCount(Integer.toString(ticket.getTicketId()), false)) {
+            if (response.isExecuted() && !TicketsController.updateCount(Integer.toString(ticket.getTicketId()), false,ticket.getVersion())) {
                 response.setType("object");
                 response.setMessage("ER");
                 response.setStatus(500);
@@ -45,15 +45,19 @@ public class ReservationController {
 
     public static Route deleteReservation = (Request req, Response res) ->{
         res.type("application/json");
-        String reservationId = req.params("id");
-        String ticketId = ReservationService.getTicketId(reservationId);
+        ReservationTable reservation = gson.fromJson(req.body(),ReservationTable.class);
+        String ticketId = Integer.toString(reservation.getTicketId());
+        int ticketVersion = reservation.getVersion();
 
-        ServerResponse response = ReservationService.deleteReservation(reservationId);
-        if(response.isExecuted() && !TicketsController.updateCount(ticketId, true)) {
-            response.setType("object");
-            response.setMessage("ER");
-            response.setStatus(500);
-            response.setExecuted(false);
+        ServerResponse response = new ServerResponse();
+        if(TicketsController.checkVersion(ticketId,ticketVersion)){
+            response = ReservationService.deleteReservation(Integer.toString(reservation.getReservationId()));
+            if(response.isExecuted() && !TicketsController.updateCount(ticketId, true,ticketVersion)) {
+                response.setType("object");
+                response.setMessage("ER");
+                response.setStatus(500);
+                response.setExecuted(false);
+            }
         }
         res.status(response.getStatus());
         return gson.toJson(response);

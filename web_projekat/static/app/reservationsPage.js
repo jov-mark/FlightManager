@@ -16,10 +16,16 @@ Vue.component("reservation-page",{
             let resDate = (this.reservationTable.find(res => res.reservationId === resId)).departDate
             return !(Date.parse(resDate)-Date.parse(this.currDate)<(-this.millisInDay))
         },
-        deleteReservation: function (resId){
+        deleteReservation: function (reservation){
+            let newRes = Object.assign({}, reservation);
+            newRes.departDate = new Date()
+            if(!newRes.oneWay) newRes.returnDate = new Date()
             axios
-                .delete('/rest/reservation/delete/'+resId)
-                .then(function (){location.reload()})
+                .post('/rest/reservation/delete',newRes)
+                .then(function (){
+                    localStorage.setItem('res',(localStorage.getItem('res')-1).toString())
+                    location.reload()
+                })
                 .catch(function (error){
                     if(error.response)
                         parseResponse(error.response.data.type,error.response.data.message)
@@ -64,7 +70,7 @@ Vue.component("reservation-page",{
         <td>{{reservation.count}}</td>
         <td v-if="checkAvailability(reservation.reservationId)">Yes</td>
         <td v-else>No</td>
-        <td v-if="checkDate(reservation.reservationId)" v-on:click="deleteReservation(reservation.reservationId)">Delete</td>
+        <td v-if="checkDate(reservation.reservationId)" v-on:click="deleteReservation(reservation)">Delete</td>
     </tr>
     </table> 
     </div>

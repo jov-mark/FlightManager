@@ -31,7 +31,8 @@ Vue.component("user-menu",{
     <div class="topcorner">
     <label v-on:click="main()">{{this.username}}</label>
     <label>{{this.type}}</label>
-    <label v-if="this.type==='user'" v-on:click="reservations()">Reservations{{this.resNum}}</label>
+    <img src="resIcon.png" width="20px" height="20px" v-if="this.type==='user'" v-on:click="reservations()">
+    {{this.resNum}}</img>
     <button v-on:click="logout()">Log out</button>
     </div>
     `

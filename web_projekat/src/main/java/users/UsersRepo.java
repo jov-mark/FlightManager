@@ -35,6 +35,9 @@ public class UsersRepo {
             System.out.println(e);
             return null;
         }
+        if(user.getId()==0){
+            return getUser(username,password);
+        }
         return user;
     }
 
@@ -68,6 +71,30 @@ public class UsersRepo {
             System.out.println(e);
         }
         return exists;
+    }
+
+    private static User getUser(String username,String password){
+        User user = new User();
+        String query = "select * from user\n" +
+                "where username='"+username+"' and password='"+password+"'";
+        try {
+            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            if (rs.next()){
+                user.setId(rs.getInt(1));
+                user.setUsername(rs.getString(2));
+                user.setPassword(rs.getString(3));
+                user.setType(rs.getBoolean(4));
+            }
+            rs.close();
+            st.close();
+            con.close();
+        }catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+        return user;
     }
 
 
