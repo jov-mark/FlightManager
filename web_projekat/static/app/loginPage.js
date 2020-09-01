@@ -15,6 +15,7 @@ Vue.component("login-page",{
                     localStorage.setItem('user_id',data.id)
                     localStorage.setItem('username',data.username)
                     localStorage.setItem('user',(data.type)?'admin':'user')
+                    localStorage.setItem('res',data.reservations)
                     window.location.replace("/")
                 })
                 .catch(function (error){

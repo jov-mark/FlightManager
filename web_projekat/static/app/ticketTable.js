@@ -5,6 +5,7 @@ Vue.component("ticket-table",{
             userId: "",
             main: false,
             tablePage: 1,
+            checkValue: false,
             tableFilter: {
                 originCity: 0,
                 destCity: 0,
@@ -22,6 +23,7 @@ Vue.component("ticket-table",{
     },
     methods:{
         filterTable: function (){
+            this.checkValue=false
             if(Date.parse(this.date1)-Date.parse(this.date2)>=0) {
                 alert("Return date must be after departure date!")
                 return
@@ -38,6 +40,7 @@ Vue.component("ticket-table",{
                 .then(response => this.table = response.data)
         },
         filterWay: function (){
+            this.checkValue=false
             if(this.tableFilter.way!==this.way){
                 this.tableFilter.way = this.way
                 axios
@@ -67,10 +70,12 @@ Vue.component("ticket-table",{
                 .then(response => this.table = response.data)
         },
         nextPage: function (){
+            this.checkValue = false;
             this.tablePage++
             axios
                 .get('/rest/ticket/getFilteredTable/'+this.tablePage)
                 .then(response => (this.table = response.data))
+                .catch(error => this.handleResponse("0",error.response.data))
         },
         prevPage: function (){
             this.tablePage--
@@ -115,17 +120,24 @@ Vue.component("ticket-table",{
             switch (type){
                 case "book":
                     let ticket = this.table
+                    parseResponse(data.type,data.message)
                     break
                 case "delete":
                     axios
                         .get('/rest/ticket/table/'+this.tablePage)
                         .then(response => (this.table = response.data))
+                    parseResponse(data.type,data.message)
+                    break
+                case "0":
+                    this.tablePage--
+                    this.checkValue = true
+                    this.checkLast()
                     break
             }
-            parseResponse(data.type,data.message)
         },
         checkLast: function (){
             if(this.table===null)   return true
+            if(this.checkValue)  return true
             return this.table.length<5
         }
     },

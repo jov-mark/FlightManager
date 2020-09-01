@@ -17,7 +17,21 @@ public class CompanyController {
 
     public static Route getCompanyById = (Request req, Response res) ->{
         res.type("application/json");
-        return gson.toJson(CompanyService.getCompanyById(req.params("id")));
+        Company company = CompanyService.getCompanyById(req.params("id"));
+        ServerResponse response = new ServerResponse();
+        if(company==null){
+            res.status(500);
+            return gson.toJson(response);
+        }
+        if(company.getId()==0){
+            res.status(404);
+            response.setStatus(404);
+            response.setType("object");
+            response.setMessage("ER-EX");
+            return gson.toJson(response);
+        }
+        res.status(200);
+        return gson.toJson(company);
     };
 
     public static Route createCompany = (Request req, Response res) ->{
@@ -40,7 +54,7 @@ public class CompanyController {
         res.type("application/json");
         String companyId = req.params("id");
 
-        ServerResponse response = new ServerResponse("company");
+        ServerResponse response = new ServerResponse();
         if(TicketsController.deleteForCompany(companyId))
             response = CompanyService.delete(companyId);
         res.status(response.getStatus());

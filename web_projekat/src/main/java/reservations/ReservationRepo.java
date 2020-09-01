@@ -65,8 +65,9 @@ public class ReservationRepo {
         int id = getLastId(query);
         query = "insert into user_reservations (user_id,reservation_id,version)\n" +
                 "values ("+userId+","+id+",1)";
-        ServerResponse response = new ServerResponse("reservation");
+        ServerResponse response = new ServerResponse();
         if(preparedStatement(query)){
+            response.setType("reservation");
             response.setMessage("OK-C");
             response.setStatus(201);
             response.setExecuted(true);
@@ -105,7 +106,7 @@ public class ReservationRepo {
                 reservationList.add(rs.getInt(1));
             }
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
         for(int res: reservationList){
@@ -116,9 +117,10 @@ public class ReservationRepo {
     }
 
     public static ServerResponse deleteReservation(String id){
-        ServerResponse response = new ServerResponse("reservation");
+        ServerResponse response = new ServerResponse();
         if(preparedStatement("delete from user_reservations where reservation_id="+id)
                 && preparedStatement("delete from reservation where id="+id)){
+            response.setType("reservation");
             response.setExecuted(true);
             response.setMessage("OK-D");
             response.setStatus(200);
@@ -147,7 +149,6 @@ public class ReservationRepo {
 
 
     private static boolean preparedStatement(String query){
-        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             PreparedStatement pst = con.prepareStatement(query);

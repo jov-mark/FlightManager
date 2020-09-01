@@ -76,7 +76,6 @@ public class TicketsRepo {
     }
 
     public static List<TicketTable> getFilteredTable(int page){
-//        System.out.println(queryFilter);
         if(queryFilter.equals("")) return null;
         List<TicketTable> table = new ArrayList<>();
         try{
@@ -117,6 +116,7 @@ public class TicketsRepo {
             con.close();
         }catch (Exception e){
             System.out.println(e);
+            return null;
         }
         Pagination pagination = new Pagination(table);
         return pagination.getSubTable(page);
@@ -286,7 +286,7 @@ public class TicketsRepo {
     }
 
     public static ServerResponse updateTicket(Ticket ticket){
-        ServerResponse response = new ServerResponse("ticket");
+        ServerResponse response = new ServerResponse();
         if(!checkVersion(Integer.toString(ticket.getId()),ticket.getVersion())){
             return  response;
         }
@@ -295,7 +295,7 @@ public class TicketsRepo {
         String query = "" +
                 "update ticket\n" +
                 "set version="+(ticket.getVersion()+1) +
-                "company_id="+ticket.getCompany().getId()+", " +
+                ", company_id="+ticket.getCompany().getId()+", " +
                 "one_way="+ticket.isOneWay()+", " +
                 "departure='"+dateFormat.format(ticket.getDepartureDate())+"', " +
                 "return_date="+(ticket.isOneWay()?null:"'"+(dateFormat.format(ticket.getReturnDate()))+"'")+", "+
@@ -303,6 +303,8 @@ public class TicketsRepo {
                 "count="+ticket.getCount()+" \n" +
                 "where id="+ticket.getId();
         if(preparedStatement(query)){
+            response.setType("ticket");
+            response.setStatus(200);
             response.setMessage("OK-U");
             response.setExecuted(true);
         }
@@ -328,8 +330,9 @@ public class TicketsRepo {
         query="insert into flight_tickets (flight_id,ticket_id,version)\n" +
                 "values("+ticket.getFlight().getId()+","+ticketId+",1)";
 
-        ServerResponse response = new ServerResponse("ticket");
+        ServerResponse response = new ServerResponse();
         if(preparedStatement(query)){
+            response.setType("ticket");
             response.setMessage("OK-C");
             response.setStatus(201);
             response.setExecuted(true);
@@ -338,10 +341,12 @@ public class TicketsRepo {
     }
 
     public static ServerResponse deleteTicket(String id){
-        ServerResponse response = new ServerResponse("ticket");
+        ServerResponse response = new ServerResponse();
         if(preparedStatement("delete from flight_tickets where ticket_id="+id)
                 && preparedStatement("delete from ticket where id="+id)){
+            response.setType("ticket");
             response.setMessage("OK-D");
+            response.setStatus(200);
             response.setExecuted(true);
         }
         return response;
@@ -374,13 +379,13 @@ public class TicketsRepo {
             pst.close();
             con.close();
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
         return true;
     }
 
-    private static boolean checkVersion(String ticketId, int currVersion){
+    public static boolean checkVersion(String ticketId, int currVersion){
         int newestVersion = 0;
         String query = "select version from ticket where id="+ticketId;
         try {

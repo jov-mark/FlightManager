@@ -13,8 +13,10 @@ public class UsersRepo {
 
     public static User login(String username, String password){
         User user = new User();
-        String query = "select * from user\n" +
-                        "where user.username='"+username+"' and user.password='"+password+"'";
+        String query = "select user.id,user.username,user.password,user.type, count(user_reservations.id) from user\n" +
+                "inner join user_reservations\n" +
+                "on user.id=user_reservations.user_id\n" +
+                "where user.username='"+username+"' and user.password='"+password+"'";
         try {
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             Statement st = con.createStatement();
@@ -24,22 +26,24 @@ public class UsersRepo {
                 user.setUsername(rs.getString(2));
                 user.setPassword(rs.getString(3));
                 user.setType(rs.getBoolean(4));
+                user.setReservations(rs.getInt(5));
             }
             rs.close();
             st.close();
             con.close();
         }catch (Exception e){
             System.out.println(e);
+            return null;
         }
-
         return user;
     }
 
     public static ServerResponse register(User user){
         String query = "insert into user(user.username,user.password,user.type)" +
                 "values ('"+user.getUsername()+"','"+user.getPassword()+"',"+user.isType()+")";
-        ServerResponse response = new ServerResponse("user");
+        ServerResponse response = new ServerResponse();
         if(preparedStatement(query)){
+            response.setType("user");
             response.setMessage("OK-C");
             response.setStatus(201);
             response.setExecuted(true);

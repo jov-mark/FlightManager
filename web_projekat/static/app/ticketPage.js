@@ -21,7 +21,7 @@ Vue.component("ticket-page",{
             if(this.validateInput()) {
                 axios
                     .post('/rest/ticket/update', this.ticket)
-                    .then(response => parseResponse(response.data.type,response.data.message))
+                    .then(response => this.handleResponse(response.data))
                     .catch(function (error){
                         if(error.response)
                             parseResponse(error.response.data.type,error.response.data.message)
@@ -33,6 +33,10 @@ Vue.component("ticket-page",{
         },
         cancelUpdate: function () {
             router.push({path: `/`})
+        },
+        handleResponse: function (data){
+            this.ticket.version++
+            parseResponse(data.type,data.message)
         },
         validateInput: function (){
             if(this.ticket.count<1) {

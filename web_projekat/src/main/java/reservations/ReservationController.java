@@ -16,21 +16,28 @@ public class ReservationController {
     public static Route getReservationsTable = (Request req, Response res) ->{
         res.type("application/json");
         List<ReservationTable> reservationTable = ReservationService.getReservationsTable(req.params("id"));
-//        TODO: ISPRAVI!!
-        if(reservationTable!=null)
-            return gson.toJson(reservationTable);
-        return new ServerResponse("reservation");
+        ServerResponse response = new ServerResponse();
+        if(reservationTable == null){
+            res.status(response.getStatus());
+            return gson.toJson(response);
+        }
+
+        return gson.toJson(reservationTable);
     };
 
     public static Route createReservation = (Request req, Response res) ->{
         res.type("application/json");
         String userId= req.params("id");
         TicketTable ticket = gson.fromJson(req.body(),TicketTable.class);
-        ServerResponse response = ReservationService.createReservation(ticket,userId);
-        if(response.isExecuted() && !TicketsController.updateCount(Integer.toString(ticket.getTicketId()),false)){
-            response.setMessage("ER");
-            response.setStatus(500);
-            response.setExecuted(false);
+        ServerResponse response = new ServerResponse();
+        if(TicketsController.checkVersion(Integer.toString(ticket.getTicketId()),ticket.getVersion())) {
+            response = ReservationService.createReservation(ticket, userId);
+            if (response.isExecuted() && !TicketsController.updateCount(Integer.toString(ticket.getTicketId()), false)) {
+                response.setType("object");
+                response.setMessage("ER");
+                response.setStatus(500);
+                response.setExecuted(false);
+            }
         }
         res.status(response.getStatus());
         return gson.toJson(response);
@@ -43,6 +50,7 @@ public class ReservationController {
 
         ServerResponse response = ReservationService.deleteReservation(reservationId);
         if(response.isExecuted() && !TicketsController.updateCount(ticketId, true)) {
+            response.setType("object");
             response.setMessage("ER");
             response.setStatus(500);
             response.setExecuted(false);

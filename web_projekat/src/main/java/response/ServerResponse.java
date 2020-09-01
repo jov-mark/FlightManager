@@ -7,13 +7,7 @@ public class ServerResponse {
     private boolean executed;
 
     public ServerResponse() {
-        type="";
-        message="ER";
-        this.status = 500;
-        executed=false;
-    }
-    public ServerResponse(String type) {
-        this.type = type;
+        this.type = "object";
         this.message = "ER";
         this.status = 500;
         this.executed = false;

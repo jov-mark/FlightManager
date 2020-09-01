@@ -20,13 +20,20 @@ public class UserController {
     public static Route login = (Request req, Response res) ->{
         res.type("application/json");
         User user = UserService.login(req.queryParams("username"),req.queryParams("password"));
+        ServerResponse response = new ServerResponse();
+        if(user == null){
+            res.status(response.getStatus());
+            return gson.toJson(response);
+        }
         if(user.getId()!=0){
 //            user.setToken(AuthService.generateToken(user));
             res.status(200);
             return gson.toJson(user);
         }
-        ServerResponse response = new ServerResponse("user","ER-L",400,false);
-        res.status(response.getStatus());
+        response.setType("user");
+        response.setMessage("ER-L");
+        response.setStatus(400);
+        res.status(400);
         return gson.toJson(response);
     };
 }

@@ -26,7 +26,6 @@ Vue.component("airline-page",{
                 if (this.companyName === this.company.name){
                     return
                 }
-                this.company.name = this.companyName
                 axios
                     .post('/rest/company/update',this.company)
                     .then(response => this.handleResponse("update",response.data))
@@ -82,6 +81,7 @@ Vue.component("airline-page",{
             switch (type){
                 case "update":
                     this.company.version++
+                    this.company.name = this.companyName
                     this.companyName = ""
                     break
                 case "create":
@@ -154,6 +154,13 @@ Vue.component("airline-page",{
         axios
             .get('/rest/company/get/'+this.companyId)
             .then(response => (this.company = response.data))
+            .catch(function (error){
+                if(error.response.data){
+                    parseResponse(error.response.data.type,error.response.data.message)
+                }else{
+                    alert("Unknown error occurred.")
+                }
+            })
     },
     template:`
 <div>
@@ -162,13 +169,12 @@ Vue.component("airline-page",{
     <br>
     <table border="1">
     <tr>
-        <td>One-way</td>
-        <td>Origin</td>
-        <td>Destination</td>
-        <td>Depart</td>
-        <td>Return</td>
-        <td>Company</td>
-        <td>Count</td>
+        <th>One-way</th>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>Depart</th>
+        <th>Return</th>
+        <th>Count</th>
     </tr>
     <tbody v-if="this.user==='admin'">
         <tr v-for="t in table">
@@ -178,7 +184,6 @@ Vue.component("airline-page",{
         <td>{{t.destination.name}}</td>
         <td>{{t.departDate}}</td>
         <td>{{t.returnDate}}</td>
-        <td>{{t.company.name}}</td>
         <td>{{t.count}}</td>
         <td v-on:click="deleteTicket(t.ticketId)">Delete</td>
         <td v-on:click="editTicket(t.ticketId)">Edit</td>
@@ -192,7 +197,6 @@ Vue.component("airline-page",{
         <td>{{t.destination.name}}</td>
         <td>{{t.departDate}}</td>
         <td>{{t.returnDate}}</td>
-        <td>{{t.company.name}}</td>
         <td>{{t.count}}</td>
         <td v-on:click="bookTicket(t)">Book</td>
         </tr>

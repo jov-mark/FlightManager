@@ -8,15 +8,12 @@ public class UserService {
         return UsersRepo.login(username,password);
     }
 
-    private static boolean checkUsername(String username){
-        return UsersRepo.getUser(username);
-    }
-
     public static ServerResponse register(User user){
-        ServerResponse response = new ServerResponse("user");
-        if(!checkUsername(user.getUsername())) {
+        ServerResponse response = new ServerResponse();
+        if(!UsersRepo.getUser(user.getUsername())) {
             response = UsersRepo.register(user);
         }else{
+            response.setType("user");
             response.setStatus(409);
             response.setMessage("EX");
         }

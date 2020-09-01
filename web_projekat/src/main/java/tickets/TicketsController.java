@@ -16,7 +16,7 @@ public class TicketsController {
     public static Route getTicketById = (Request req, Response res) ->{
         res.type("application/json");
         Ticket ticket = TicketsService.getTicketById(req.params("id"));
-        ServerResponse response = new ServerResponse("ticket");
+        ServerResponse response = new ServerResponse();
         if(ticket == null) {
             res.status(response.getStatus());
             return gson.toJson(response);
@@ -33,8 +33,9 @@ public class TicketsController {
     public static Route filterTable = (Request req, Response res) ->{
         res.type("application/json");
         TableFilter filter = gson.fromJson(req.body(),TableFilter.class);
-        ServerResponse response = new ServerResponse("filter");
+        ServerResponse response = new ServerResponse();
         if(TicketsService.setFilter(filter)){
+            response.setType("filter");
             response.setMessage("OK-F");
             response.setStatus(200);
             response.setExecuted(true);
@@ -46,6 +47,18 @@ public class TicketsController {
     public static Route getFilteredTable = (Request req, Response res) ->{
         res.type("application/json");
         String page = req.params("page");
+        List<TicketTable> ticketTable = TicketsService.getFilteredTable(page);
+        ServerResponse response = new ServerResponse();
+        if(ticketTable==null){
+            res.status(response.getStatus());
+            return gson.toJson(response);
+        }
+        if(ticketTable.size() == 0){
+            response.setStatus(404);
+            res.status(404);
+            return gson.toJson(response);
+        }
+        res.status(200);
         return gson.toJson(TicketsService.getFilteredTable(page));
     };
 
@@ -83,21 +96,25 @@ public class TicketsController {
         res.type("application/json");
         String ticketId = req.params("id");
 
-        ServerResponse response = new ServerResponse("ticket");
+        ServerResponse response = new ServerResponse();
         if(ReservationController.deleteForTicket(ticketId))
             response = TicketsService.deleteTicket(ticketId);
         res.status(response.getStatus());
         return gson.toJson(response);
     };
 
+    public static boolean checkVersion(String ticketId, int currVersion){
+        return TicketsService.checkVersion(ticketId,currVersion);
+    }
+
     public static boolean deleteForCompany(String id){
         List<Integer> tickets = TicketsService.getTicketsForCompany(id);
         for(int ticket: tickets){
-            if(ReservationController.deleteForTicket(Integer.toString(ticket))
-                    && TicketsService.deleteTicket(Integer.toString(ticket)).isExecuted())
-                return true;
+            if(!ReservationController.deleteForTicket(Integer.toString(ticket))
+                    || !TicketsService.deleteTicket(Integer.toString(ticket)).isExecuted())
+                return false;
         }
-        return false;
+        return true;
     }
 
     public static boolean updateCount(String id, boolean inc){

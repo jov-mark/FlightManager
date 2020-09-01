@@ -33,6 +33,9 @@ function parseResponse (sSwitch, sResponse){
                 case "OK-U":
                     alert("Ticket successfully updated.")
                     break
+                case "ER-I":
+                    alert("Invalid input!")
+                    break
                 case "ER-B":
                     alert("Ticket couldn't be booked.")
                     break
@@ -83,9 +86,12 @@ function parseResponse (sSwitch, sResponse){
         case "object":
             switch (sResponse){
                 case "ER-EX":
-                    if(confirm("Object has existential crisis.\nGo to main page?"))
-                        window.location.replace('/')
+                    if(alert("Object has existential crisis.\nGo to main page?")){}
+                    window.location.replace('/')
                     break
+                case "ER":
+                    alert("An error occurred.")
+                    location.reload()
             }
             break
     }

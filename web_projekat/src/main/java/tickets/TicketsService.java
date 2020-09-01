@@ -42,11 +42,19 @@ public class TicketsService {
         if(validateTicket(ticket)) {
             return TicketsRepo.createTicket(ticket);
         }
-        return new ServerResponse("ticket");
+        ServerResponse response = new ServerResponse();
+        response.setType("ticket");
+        response.setMessage("ER-I");
+        response.setStatus(400);
+        return response;
     }
 
     public static List<Integer> getTicketsForCompany(String id){
         return TicketsRepo.getTicketsForCompany(id);
+    }
+
+    public static boolean checkVersion(String ticketId, int currVersion){
+        return TicketsRepo.checkVersion(ticketId,currVersion);
     }
 
     public static boolean updateCount(String id, boolean inc){

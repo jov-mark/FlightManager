@@ -5,6 +5,7 @@ public class User {
     private String username;
     private String password;
     private boolean type;
+    private int reservations;
     private String token;
 
     public User(){
@@ -12,15 +13,8 @@ public class User {
         this.username="";
         this.password="";
         this.type=false;
+        this.reservations = 0;
         this.token = "";
-    }
-
-    public User(int id, String username, String password, boolean type, String token) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.type = type;
-        this.token = token;
     }
 
     public int getId() {
@@ -63,6 +57,14 @@ public class User {
         this.token = token;
     }
 
+    public int getReservations() {
+        return reservations;
+    }
+
+    public void setReservations(int reservations) {
+        this.reservations = reservations;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -70,6 +72,8 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", type=" + type +
+                ", reservations=" + reservations +
+                ", token='" + token + '\'' +
                 '}';
     }
 }

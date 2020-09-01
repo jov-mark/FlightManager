@@ -55,6 +55,7 @@ public class CompanyRepo {
             con.close();
         }catch (Exception e){
             System.out.println(e);
+            return null;
         }
 
         return company;
@@ -63,11 +64,13 @@ public class CompanyRepo {
     public static ServerResponse createCompany(Company company){
         String query = "insert into company(name,version)\n" +
                        " values ('"+company.getName()+"',"+company.getVersion()+")";
-        ServerResponse response = new ServerResponse("company");
+        ServerResponse response = new ServerResponse();
         if(!checkName(company.getName())){
+            response.setType("company");
             response.setMessage("EX");
             response.setStatus(409);
         }   else if(preparedStatement(query)){
+            response.setType("company");
             response.setMessage("OK-C");
             response.setStatus(201);
             response.setExecuted(true);
@@ -76,20 +79,34 @@ public class CompanyRepo {
     }
 
     public static ServerResponse updateCompany(Company company){
-        ServerResponse response = new ServerResponse("company");
+        ServerResponse response = new ServerResponse();
         if(!checkVersion(company.getId(),company.getVersion())){
+            response.setStatus(409);
             return response;
         }
         String query = "update company \n" +
                 "set "+
                 " name='"+company.getName()+"', version="+(company.getVersion()+1)+"\n" +
                 "where id="+company.getId();
-        System.out.println(query);
         if(!checkName(company.getName())){
+            response.setType("company");
             response.setMessage("EX");
             response.setStatus(409);
         }else if(preparedStatement(query)){
+            response.setType("company");
             response.setMessage("OK-U");
+            response.setStatus(200);
+            response.setExecuted(true);
+        }
+        return response;
+    }
+
+    public static ServerResponse deleteCompany(String id){
+        String query = "delete from company where id="+id;
+        ServerResponse response = new ServerResponse();
+        if(preparedStatement(query)){
+            response.setType("company");
+            response.setMessage("OK-D");
             response.setStatus(200);
             response.setExecuted(true);
         }
@@ -98,7 +115,6 @@ public class CompanyRepo {
 
     private static boolean checkName(String name){
         String query = "select id from company where name='"+name+"'";
-        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             Statement st = con.createStatement();
@@ -113,17 +129,6 @@ public class CompanyRepo {
             return false;
         }
         return true;
-    }
-
-    public static ServerResponse deleteCompany(String id){
-        String query = "delete from company where id="+id;
-        ServerResponse response = new ServerResponse("company");
-        if(preparedStatement(query)){
-            response.setMessage("OK-D");
-            response.setStatus(200);
-            response.setExecuted(true);
-        }
-        return response;
     }
 
     private static boolean checkVersion(int companyId, int currVersion){
@@ -155,7 +160,7 @@ public class CompanyRepo {
             pst.close();
             con.close();
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
         return true;
