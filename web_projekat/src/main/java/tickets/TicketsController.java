@@ -15,16 +15,32 @@ public class TicketsController {
 
     public static Route getTicketById = (Request req, Response res) ->{
         res.type("application/json");
-        return gson.toJson(TicketsService.getTicketById(req.params("id")));
+        Ticket ticket = TicketsService.getTicketById(req.params("id"));
+        ServerResponse response = new ServerResponse("ticket");
+        if(ticket == null) {
+            res.status(response.getStatus());
+            return gson.toJson(response);
+        }else if(ticket.getId()==0){
+            response.setStatus(404);
+            response.setType("object");
+            response.setMessage("ER-EX");
+            res.status(response.getStatus());
+            return gson.toJson(response);
+        }
+        return gson.toJson(ticket);
     };
 
     public static Route filterTable = (Request req, Response res) ->{
         res.type("application/json");
         TableFilter filter = gson.fromJson(req.body(),TableFilter.class);
+        ServerResponse response = new ServerResponse("filter");
         if(TicketsService.setFilter(filter)){
-            return "OK";
+            response.setMessage("OK-F");
+            response.setStatus(200);
+            response.setExecuted(true);
         }
-        return "ERR";
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 
     public static Route getFilteredTable = (Request req, Response res) ->{
@@ -50,7 +66,8 @@ public class TicketsController {
         Ticket ticket = gson.fromJson(req.body(),Ticket.class);
 
         ServerResponse response = TicketsService.updateTicket(ticket);
-        return response;
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 
     public static Route createTicket = (Request req, Response res) ->{
@@ -58,7 +75,8 @@ public class TicketsController {
         Ticket ticket = gson.fromJson(req.body(), Ticket.class);
 
         ServerResponse response = TicketsService.createTicket(ticket);
-        return response;
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 
     public static Route deleteTicket = (Request req, Response res) ->{
@@ -66,10 +84,10 @@ public class TicketsController {
         String ticketId = req.params("id");
 
         ServerResponse response = new ServerResponse("ticket");
-        if(ReservationController.deleteForTicket(ticketId)){
+        if(ReservationController.deleteForTicket(ticketId))
             response = TicketsService.deleteTicket(ticketId);
-        }
-        return response;
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 
     public static boolean deleteForCompany(String id){

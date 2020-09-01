@@ -1,4 +1,4 @@
-Vue.component("user-logout-form",{
+Vue.component("user-menu",{
     data: function (){
         return{
             username: "",

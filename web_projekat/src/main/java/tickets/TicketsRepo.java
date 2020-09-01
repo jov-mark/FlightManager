@@ -106,6 +106,7 @@ public class TicketsRepo {
                 tickets.setReturnDate(rs.getDate(7));
                 tickets.setCount(rs.getInt(8));
                 tickets.setFlightId(rs.getInt(13));
+                tickets.setVersion(rs.getInt(14));
                 tickets.setOrigin(origin);
                 tickets.setDestination(destination);
 
@@ -122,6 +123,7 @@ public class TicketsRepo {
     }
 
     public static List<TicketTable> getTicketsTable(int page){
+//        System.out.println(queryTicketTable);
         List<TicketTable> table = new ArrayList<>();
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
@@ -150,6 +152,7 @@ public class TicketsRepo {
                 tickets.setReturnDate(rs.getDate(7));
                 tickets.setCount(rs.getInt(8));
                 tickets.setFlightId(rs.getInt(13));
+                tickets.setVersion(rs.getInt(14));
                 tickets.setOrigin(origin);
                 tickets.setDestination(destination);
 
@@ -194,6 +197,7 @@ public class TicketsRepo {
                 tickets.setReturnDate(rs.getDate(7));
                 tickets.setCount(rs.getInt(8));
                 tickets.setFlightId(rs.getInt(13));
+                tickets.setVersion(rs.getInt(14));
                 tickets.setOrigin(origin);
                 tickets.setDestination(destination);
 
@@ -275,6 +279,7 @@ public class TicketsRepo {
 
         }catch (Exception e){
             System.out.println(e);
+            return null;
         }
 
         return ticket;
@@ -282,11 +287,15 @@ public class TicketsRepo {
 
     public static ServerResponse updateTicket(Ticket ticket){
         ServerResponse response = new ServerResponse("ticket");
+        if(!checkVersion(Integer.toString(ticket.getId()),ticket.getVersion())){
+            return  response;
+        }
         if(!updateFlights(getTicketById(Integer.toString(ticket.getId())),ticket))
             return response;
         String query = "" +
                 "update ticket\n" +
-                "set company_id="+ticket.getCompany().getId()+", " +
+                "set version="+(ticket.getVersion()+1) +
+                "company_id="+ticket.getCompany().getId()+", " +
                 "one_way="+ticket.isOneWay()+", " +
                 "departure='"+dateFormat.format(ticket.getDepartureDate())+"', " +
                 "return_date="+(ticket.isOneWay()?null:"'"+(dateFormat.format(ticket.getReturnDate()))+"'")+", "+
@@ -322,6 +331,7 @@ public class TicketsRepo {
         ServerResponse response = new ServerResponse("ticket");
         if(preparedStatement(query)){
             response.setMessage("OK-C");
+            response.setStatus(201);
             response.setExecuted(true);
         }
         return response;
@@ -370,10 +380,31 @@ public class TicketsRepo {
         return true;
     }
 
+    private static boolean checkVersion(String ticketId, int currVersion){
+        int newestVersion = 0;
+        String query = "select version from ticket where id="+ticketId;
+        try {
+            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            if(rs.next()){
+                newestVersion = rs.getInt(1);
+            }
+            rs.close();
+            st.close();
+            con.close();
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        if(newestVersion!=0)
+            return newestVersion==currVersion;
+        return false;
+    }
+
     private static void setFilterQuery(TableFilter filter){
         queryFilter ="" +
                 "select ticket.id,com.id, com.name,com.version, ticket.one_way, ticket.departure, ticket.return_date," +
-                " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id\n" +
+                " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id, ticket.version\n" +
                 "from ticket\n" +
                 "inner join flight_tickets\n" +
                 "on ticket.id=flight_tickets.ticket_id\n" +
@@ -399,7 +430,7 @@ public class TicketsRepo {
 
     private static String queryTicketTableCompany="" +
             "select ticket.id,com.id, com.name,com.version, ticket.one_way, ticket.departure, ticket.return_date," +
-            " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id\n" +
+            " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id, ticket.version\n" +
             "from ticket\n" +
             "inner join flight_tickets\n" +
             "on ticket.id=flight_tickets.ticket_id\n" +
@@ -446,7 +477,7 @@ public class TicketsRepo {
 
     private static String queryTicketTable = "" +
             "select ticket.id,com.id, com.name,com.version, ticket.one_way, ticket.departure, ticket.return_date," +
-            " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id\n" +
+            " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id, ticket.version\n" +
             "from ticket\n" +
             "inner join flight_tickets\n" +
             "on ticket.id=flight_tickets.ticket_id\n" +

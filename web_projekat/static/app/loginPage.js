@@ -7,28 +7,23 @@ Vue.component("login-page",{
     },
     methods :{
         login: function (){
-            $.ajax({
-                url: "/rest/user/login",
-                type: "GET",
-                data: {
-                    username: this.username,
-                    password: this.password
-                },
-                contentType: "application/json",
-                dataType: "json",
-                success: function (data){
-                    localStorage.setItem('username',data.username)
+            let params = "username="+this.username+"&password="+this.password
+            axios
+                .get('/rest/user/login?'+params)
+                .then(function (response){
+                    let data = response.data
                     localStorage.setItem('user_id',data.id)
-                    localStorage.setItem('user','user')
-                    if(data.type){
-                        localStorage.setItem('user','admin')
-                    }
+                    localStorage.setItem('username',data.username)
+                    localStorage.setItem('user',(data.type)?'admin':'user')
                     window.location.replace("/")
-                },
-                error: function (data){
-                    console.log(data)
-                }
-            })
+                })
+                .catch(function (error){
+                    if(error.response)
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    else{
+                        alert("Unknown error occurred.")
+                    }
+                })
         }
     },
     mounted () {},

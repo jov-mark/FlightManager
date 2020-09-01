@@ -17,6 +17,7 @@ public class UserService {
         if(!checkUsername(user.getUsername())) {
             response = UsersRepo.register(user);
         }else{
+            response.setStatus(409);
             response.setMessage("EX");
         }
         return response;

@@ -19,7 +19,7 @@ public class UsersRepo {
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(query);
-            while (rs.next()){
+            if (rs.next()){
                 user.setId(rs.getInt(1));
                 user.setUsername(rs.getString(2));
                 user.setPassword(rs.getString(3));
@@ -41,6 +41,7 @@ public class UsersRepo {
         ServerResponse response = new ServerResponse("user");
         if(preparedStatement(query)){
             response.setMessage("OK-C");
+            response.setStatus(201);
             response.setExecuted(true);
         }
         return response;

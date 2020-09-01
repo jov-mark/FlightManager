@@ -16,8 +16,8 @@ public class ReservationTable extends TicketTable {
         this.isAvailable = false;
     }
 
-    public ReservationTable(int ticketId, boolean oneWay, int flightId, City origin, City destination, Date departDate, Date returnDate, Company company, int count, int reservationId, boolean isAvailable) {
-        super(ticketId, oneWay, flightId, origin, destination, departDate, returnDate, company, count);
+    public ReservationTable(int ticketId, boolean oneWay, int flightId, City origin, City destination, Date departDate, Date returnDate, Company company, int count, int version, int reservationId, boolean isAvailable) {
+        super(ticketId, oneWay, flightId, origin, destination, departDate, returnDate, company, count, version);
         this.reservationId = reservationId;
         this.isAvailable = isAvailable;
     }

@@ -64,24 +64,33 @@ public class CompanyRepo {
         String query = "insert into company(name,version)\n" +
                        " values ('"+company.getName()+"',"+company.getVersion()+")";
         ServerResponse response = new ServerResponse("company");
-        if(checkName(company.getName())){
+        if(!checkName(company.getName())){
             response.setMessage("EX");
+            response.setStatus(409);
         }   else if(preparedStatement(query)){
             response.setMessage("OK-C");
+            response.setStatus(201);
             response.setExecuted(true);
         }
         return response;
     }
 
     public static ServerResponse updateCompany(Company company){
-        String query = "update company \n" +
-                "set name='"+company.getName()+"', version="+company.getVersion()+"\n" +
-                "where id="+company.getId();
         ServerResponse response = new ServerResponse("company");
-        if(checkName(company.getName())){
+        if(!checkVersion(company.getId(),company.getVersion())){
+            return response;
+        }
+        String query = "update company \n" +
+                "set "+
+                " name='"+company.getName()+"', version="+(company.getVersion()+1)+"\n" +
+                "where id="+company.getId();
+        System.out.println(query);
+        if(!checkName(company.getName())){
             response.setMessage("EX");
+            response.setStatus(409);
         }else if(preparedStatement(query)){
             response.setMessage("OK-U");
+            response.setStatus(200);
             response.setExecuted(true);
         }
         return response;
@@ -89,6 +98,7 @@ public class CompanyRepo {
 
     private static boolean checkName(String name){
         String query = "select id from company where name='"+name+"'";
+        System.out.println(query);
         try{
             Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
             Statement st = con.createStatement();
@@ -109,12 +119,33 @@ public class CompanyRepo {
         String query = "delete from company where id="+id;
         ServerResponse response = new ServerResponse("company");
         if(preparedStatement(query)){
-            response.setExecuted(true);
             response.setMessage("OK-D");
+            response.setStatus(200);
+            response.setExecuted(true);
         }
         return response;
     }
 
+    private static boolean checkVersion(int companyId, int currVersion){
+        int newestVersion = 0;
+        String query = "select version from company where id="+companyId;
+        try {
+            Connection con = DriverManager.getConnection(URL,USER,PASSWORD);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            if(rs.next()){
+                newestVersion = rs.getInt(1);
+            }
+            rs.close();
+            st.close();
+            con.close();
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        if(newestVersion!=0)
+            return newestVersion==currVersion;
+        return false;
+    }
 
     private static boolean preparedStatement(String query){
         try{

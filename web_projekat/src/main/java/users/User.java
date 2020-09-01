@@ -1,35 +1,26 @@
 package users;
 
-import reservations.Reservation;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class User {
     private int id;
     private String username;
     private String password;
     private boolean type;
-    private List<Reservation> reservations;
-    private int version;
+    private String token;
 
     public User(){
         this.id=0;
         this.username="";
         this.password="";
         this.type=false;
-        this.reservations = new ArrayList<>();
-        this.version=0;
-
+        this.token = "";
     }
 
-    public User(int id, String username, String password, boolean type, List<Reservation> reservations, int version) {
+    public User(int id, String username, String password, boolean type, String token) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.type = type;
-        this.reservations = reservations;
-        this.version = version;
+        this.token = token;
     }
 
     public int getId() {
@@ -64,20 +55,12 @@ public class User {
         this.type = type;
     }
 
-    public List<Reservation> getReservations() {
-        return reservations;
+    public String getToken() {
+        return token;
     }
 
-    public void setReservations(List<Reservation> reservations) {
-        this.reservations = reservations;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override
@@ -87,8 +70,6 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", type=" + type +
-                ", reservations=" + reservations +
-                ", version=" + version +
                 '}';
     }
 }

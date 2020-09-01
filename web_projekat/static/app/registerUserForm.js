@@ -14,9 +14,24 @@ Vue.component("user-form",{
             if(this.validateInput()) {
                 axios
                     .post('/rest/user/register', this.user)
-                    .then(response => parseResponse("user",response.data))
+                    .then(response => this.handleResponse(response.data))
+                    .catch(function (error){
+                        if(error.response)
+                            parseResponse(error.response.data.type,error.response.data.message)
+                        else{
+                            alert("Unknown error occurred.")
+                        }
+                    })
             }   else
                     parseResponse("user","ER-L")
+        },
+        handleResponse: function (data){
+            this.user = {
+                username:"",
+                    password:"",
+                    type:""
+            }
+            parseResponse(data.type,data.message)
         },
         validateInput: function () {
             const isName = this.user.username!==""
@@ -28,7 +43,7 @@ Vue.component("user-form",{
     mounted() {},
     template:`
     <div>
-<!--    <h3>Register new User:</h3>-->
+    <h3>Register new User:</h3>
     <table>
         <tr>
             <td><label for="username">Username</label></td>

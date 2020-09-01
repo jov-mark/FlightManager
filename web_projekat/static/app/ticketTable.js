@@ -1,6 +1,8 @@
 Vue.component("ticket-table",{
     data: function (){
         return{
+            user: "",
+            userId: "",
             main: false,
             tablePage: 1,
             tableFilter: {
@@ -11,8 +13,6 @@ Vue.component("ticket-table",{
                 way: "all",
                 active: false
             },
-            user: "",
-            userId: "",
             cityList: null,
             table: null,
             date1: "",
@@ -32,6 +32,7 @@ Vue.component("ticket-table",{
             this.tableFilter.returnDate = (this.date2==="" || this.tableFilter.way==="oneWay")?new Date():this.date2
             axios
                 .post('/rest/ticket/filterTable',this.tableFilter)
+                .then(response => console.log(response.status))
             axios
                 .get('/rest/ticket/getFilteredTable/'+1)
                 .then(response => this.table = response.data)
@@ -84,18 +85,44 @@ Vue.component("ticket-table",{
             router.push({ path: `/ticket/${ticket_id}` })
         },
         bookTicket: function(ticket){
-            let new_reservation = Object.assign({}, ticket);
-            new_reservation.departDate = new Date()
-            if(!new_reservation.oneWay) new_reservation.returnDate = new Date()
+            let newReservation = Object.assign({}, ticket);
+            newReservation.departDate = new Date()
+            if(!newReservation.oneWay) newReservation.returnDate = new Date()
             axios
-                .post('/rest/reservation/create/'+this.userId,new_reservation)
-                .then(response => console.log(response.data))
+                .post('/rest/reservation/create/'+this.userId,newReservation)
+                .then(response => parseResponse(response.data.type, response.data.message))
+                .catch(function (error){
+                    if(error.response)
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    else{
+                        alert("Unknown error occurred.")
+                    }
+                })
         },
         deleteTicket: function (ticket_id){
             axios
                 .delete('/rest/ticket/delete/'+ticket_id)
-                .then(response => console.log(response.data))
+                .catch(function (error){
+                    if(error.response)
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    else{
+                        alert("Unknown error occurred.")
+                    }
+                })
             location.reload()
+        },
+        handleResponse(type,data){
+            switch (type){
+                case "book":
+                    let ticket = this.table
+                    break
+                case "delete":
+                    axios
+                        .get('/rest/ticket/table/'+this.tablePage)
+                        .then(response => (this.table = response.data))
+                    break
+            }
+            parseResponse(data.type,data.message)
         },
         checkLast: function (){
             if(this.table===null)   return true

@@ -53,6 +53,7 @@ public class ReservationRepo {
             con.close();
         }catch (Exception e){
             System.out.println(e);
+            return null;
         }
         return reservationTable;
     }
@@ -67,6 +68,7 @@ public class ReservationRepo {
         ServerResponse response = new ServerResponse("reservation");
         if(preparedStatement(query)){
             response.setMessage("OK-C");
+            response.setStatus(201);
             response.setExecuted(true);
         }
         return response;
@@ -119,6 +121,7 @@ public class ReservationRepo {
                 && preparedStatement("delete from reservation where id="+id)){
             response.setExecuted(true);
             response.setMessage("OK-D");
+            response.setStatus(200);
         }
         return response;
     }

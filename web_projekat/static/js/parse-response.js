@@ -15,7 +15,7 @@ function parseResponse (sSwitch, sResponse){
                     alert("Company successfully deleted.")
                     break
                 case "ER":
-                    alert("Error occurred.")
+                    alert("An error occurred.")
                     break
             }
             break
@@ -46,7 +46,7 @@ function parseResponse (sSwitch, sResponse){
                     alert("Ticket couldn't be updated.")
                     break
                 case "ER":
-                    alert("Error occurred.")
+                    alert("An error occurred.")
                     break
             }
             break
@@ -59,7 +59,7 @@ function parseResponse (sSwitch, sResponse){
                     alert("Reservation deleted.")
                     break
                 case "ER":
-                    alert("Error occurred.")
+                    alert("An error occurred.")
                     break
             }
 
@@ -76,8 +76,16 @@ function parseResponse (sSwitch, sResponse){
                     alert("Invalid input!")
                     break
                 case "ER":
-                    alert("Error occurred.")
+                    alert("An error occurred.")
                     break;
+            }
+            break
+        case "object":
+            switch (sResponse){
+                case "ER-EX":
+                    if(confirm("Object has existential crisis.\nGo to main page?"))
+                        window.location.replace('/')
+                    break
             }
             break
     }

@@ -1,21 +1,19 @@
 Vue.component("main-page",{
     data: function (){
-        return{
-            user: "",
-            user_id: "",
-        }
+        return{user: ""}
     },
-    methods: {
-    },
+    methods: {},
     mounted(){
-        if(localStorage.getItem('user')!=null){
+        if(localStorage.getItem('user')===null){
+            window.location.replace('/#/login')
+        }else {
             this.user = localStorage.getItem('user')
         }
     },
 
     template: `	
 	<div>
-	<user-logout-form></user-logout-form>
+	<user-menu></user-menu>
     <ticket-table></ticket-table>
     <div v-if="this.user==='admin'">
         <hr>

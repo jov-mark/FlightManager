@@ -24,14 +24,16 @@ public class CompanyController {
         res.type("application/json");
         Company company = gson.fromJson(req.body(),Company.class);
         ServerResponse response = CompanyService.createCompany(company);
-        return response;
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 
     public static Route updateCompany = (Request req, Response res) ->{
         res.type("application/json");
         Company company = gson.fromJson(req.body(),Company.class);
         ServerResponse response = CompanyService.updateCompany(company);
-        return response;
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 
     public static Route deleteCompany = (Request req, Response res) ->{
@@ -41,6 +43,7 @@ public class CompanyController {
         ServerResponse response = new ServerResponse("company");
         if(TicketsController.deleteForCompany(companyId))
             response = CompanyService.delete(companyId);
-        return response;
+        res.status(response.getStatus());
+        return gson.toJson(response);
     };
 }

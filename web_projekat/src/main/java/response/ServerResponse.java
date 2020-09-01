@@ -3,22 +3,26 @@ package response;
 public class ServerResponse {
     private String type;
     private String message;
+    private int status;
     private boolean executed;
 
     public ServerResponse() {
         type="";
         message="ER";
+        this.status = 500;
         executed=false;
     }
     public ServerResponse(String type) {
         this.type = type;
         this.message = "ER";
+        this.status = 500;
         this.executed = false;
     }
 
-    public ServerResponse(String type, String message, boolean executed) {
+    public ServerResponse(String type, String message, int status, boolean executed) {
         this.type = type;
         this.message = message;
+        this.status = status;
         this.executed = executed;
     }
 
@@ -38,6 +42,14 @@ public class ServerResponse {
         this.message = message;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public boolean isExecuted() {
         return executed;
     }
@@ -51,6 +63,7 @@ public class ServerResponse {
         return "ServerResponse{" +
                 "type='" + type + '\'' +
                 ", message='" + message + '\'' +
+                ", status=" + status +
                 ", executed=" + executed +
                 '}';
     }

@@ -1,7 +1,6 @@
 package flights;
 
 import city.City;
-import db.DBConnection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

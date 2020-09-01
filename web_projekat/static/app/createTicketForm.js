@@ -1,14 +1,10 @@
 Vue.component("create-ticket",{
     data: function (){
         return{
-            company_list: null,
-            flight_list: null,
+            companyList: null,
+            flightList: null,
             selectedCompany: null,
             selectedFlight: null,
-            response: {
-                type: "",
-                message: "",
-            },
             ticket: {
                 oneWay: "",
                 company: {},
@@ -20,23 +16,39 @@ Vue.component("create-ticket",{
         }
     },
     methods:{
-        select_oneway: function (){
-
-        },
-        create_ticket: function (){
+        createTicket: function (){
             if(!this.validateInput()){
                 console.log("Input is invalid!")
                 return
             }
-            this.ticket.company = this.company_list.find(x => x.id === this.selectedCompany)
-            this.ticket.flight = this.flight_list.find(x => x.id === this.selectedFlight)
+            this.ticket.company = this.companyList.find(x => x.id === this.selectedCompany)
+            this.ticket.flight = this.flightList.find(x => x.id === this.selectedFlight)
             if(this.ticket.returnDate==="" || this.ticket.oneWay==="true"){
                 this.ticket.returnDate=this.ticket.departureDate
             }
             axios
                 .post('/rest/ticket/create', this.ticket)
-                .then(response => this.response = response)
-            parseResponse(this.response.type,this.response.message)
+                .then(response => this.handleResponse(response.data))
+                .catch(function (error){
+                    if(error.response)
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    else{
+                        alert("Unknown error occurred.")
+                    }
+                })
+        },
+        handleResponse: function (data){
+            this.selectedCompany = null
+            this.selectedFlight = null
+            this.ticket = {
+                oneWay: "",
+                company: {},
+                departureDate: "",
+                returnDate: "",
+                flight: {},
+                count: ""
+            }
+            parseResponse(data.type,data.message)
         },
         validateInput: function (){
             const isOneWay = this.ticket.oneWay!==""
@@ -51,19 +63,19 @@ Vue.component("create-ticket",{
     mounted() {
         axios
             .get('/rest/company/getAll')
-            .then(response => (this.company_list=response.data))
+            .then(response => (this.companyList=response.data))
         axios
             .get('rest/flight/getAll')
-            .then(response => (this.flight_list=response.data))
+            .then(response => (this.flightList=response.data))
     },
     template:`
     <div>
-<!--    <h3>Create new Ticket:</h3>-->
+    <h3>Create new Ticket:</h3>
     <table>
         <tr>
-            <td><label for="one_way">One way:</label></td>
+            <td><label for="oneWay">One way:</label></td>
             <td>
-                <select name="one_way" v-model="ticket.oneWay" v-on:click="select_oneway()">
+                <select name="oneWay" v-model="ticket.oneWay">
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </select>
@@ -73,7 +85,7 @@ Vue.component("create-ticket",{
             <td><label for="company">Company:</label></td>
             <td>
                 <select name="company" v-model="selectedCompany">
-                    <option v-for="c in company_list" :value="c.id">{{c.name}}</option>
+                    <option v-for="c in companyList" :value="c.id">{{c.name}}</option>
                 </select>
             </td>
         </tr>
@@ -81,7 +93,7 @@ Vue.component("create-ticket",{
             <td><label for="flight">Flight:</label></td>
             <td>
                 <select name="flight" v-model="selectedFlight">
-                    <option v-for="f in flight_list" :value="f.id">{{f.name}}</option>        
+                    <option v-for="f in flightList" :value="f.id">{{f.name}}</option>        
                 </select>
             </td>
         </tr>
@@ -98,7 +110,7 @@ Vue.component("create-ticket",{
             <td><input type="text" name="count" v-model="ticket.count"></td>
         </tr>
     </table>
-    <button v-on:click="create_ticket()">Create</button>
+    <button v-on:click="createTicket()">Create</button>
 
 </div>
     `

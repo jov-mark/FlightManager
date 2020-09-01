@@ -16,6 +16,7 @@ public class TicketTable {
     private Date returnDate;
     private Company company;
     private int count;
+    private int version;
 
     public TicketTable() {
         this.ticketId = 0;
@@ -27,9 +28,11 @@ public class TicketTable {
         this.returnDate = new Date();
         this.company = new Company();
         this.count = 0;
+        this.version = 0;
     }
 
-    public TicketTable(int ticketId, boolean oneWay, int flightId, City origin, City destination, Date departDate, Date returnDate, Company company, int count) {
+    public TicketTable(int ticketId, boolean oneWay, int flightId, City origin, City destination,
+                       Date departDate, Date returnDate, Company company, int count, int version) {
         this.ticketId = ticketId;
         this.oneWay = oneWay;
         this.flightId = flightId;
@@ -39,6 +42,7 @@ public class TicketTable {
         this.returnDate = returnDate;
         this.company = company;
         this.count = count;
+        this.version = version;
     }
 
     public int getTicketId() {
@@ -111,6 +115,14 @@ public class TicketTable {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     @Override

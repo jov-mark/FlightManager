@@ -4,10 +4,11 @@ Vue.component("airline-page",{
             main: false,
             tablePage: 1,
             user: "",
+            userId: "",
             companyId: this.$route.params.id,
             table: null,
-            companyName: "",
             company: {},
+            companyName: "",
             newCompany:{
                 name: "",
                 version: 1
@@ -16,41 +17,81 @@ Vue.component("airline-page",{
         }
     },
     methods:{
-        edit_company: function (){
+        editCompany: function (){
             this.mode="EDIT"
-            this.companyName = this.company.name
         },
-        save_edit: function (){
-            if(this.company.name!=="") {
-                if (this.companyName === this.company.name)    return
-
+        saveEdit: function (){
+            if(this.companyName!=="") {
                 this.mode = "BROWSE"
+                if (this.companyName === this.company.name){
+                    return
+                }
+                this.company.name = this.companyName
                 axios
                     .post('/rest/company/update',this.company)
-                    .then(response => console.log(response.data))
+                    .then(response => this.handleResponse("update",response.data))
+                    .catch(function (error){
+                        if(error.response){
+                            parseResponse(error.response.data.type,error.response.data.message)
+                        }else{
+                            parseResponse("company","ER")
+                        }
+                    })
             }
             else
-                console.log("Name can't be null!")
+                alert("Name can't be null!")
         },
-        cancel_update: function (){
-            this.company.name = this.companyName
+        updateVersion: function (data){
+            this.company.version++
+            parseResponse(data.type,data.message)
+        },
+        cancelUpdate: function (){
+            this.companyName = ""
             this.mode="BROWSE"
         },
-        delete_company: function (){
+        deleteCompany: function (){
             axios
                 .delete('/rest/company/delete/'+this.companyId)
-                .then(response => console.log(response.data))
-            router.push({path: `/`})
+                .then(response => this.handleResponse("delete",response.data))
+                .catch(function (error){
+                    if(error.response){
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    }else{
+                        parseResponse("company","ER")
+                    }
+                })
         },
-        create_company: function (){
+        createCompany: function (){
             if(this.newCompany.name==="") {
                 console.log("Name can't be null!")
             }
             else{
                 axios
                     .post('/rest/company/create',this.newCompany)
-                    .then(response => console.log(response.data))
+                    .then(response => this.handleResponse("create",response.data))
+                    .catch(function (error){
+                        if(error.response){
+                            parseResponse(error.response.data.type,error.response.data.message)
+                        }else{
+                            parseResponse("company","ER")
+                        }
+                    })
             }
+        },
+        handleResponse(type,data){
+            switch (type){
+                case "update":
+                    this.company.version++
+                    this.companyName = ""
+                    break
+                case "create":
+                    this.newCompany.name = ""
+                    break
+                case "delete":
+                    router.push({path: `/`})
+                    break
+            }
+            parseResponse(data.type,data.message)
         },
         nextPage: function (){
             this.tablePage++
@@ -77,18 +118,35 @@ Vue.component("airline-page",{
             if(!newReservation.oneWay) newReservation.returnDate = new Date()
             axios
                 .post('/rest/reservation/create/'+this.userId,newReservation)
-                .then(response => console.log(response.data))
+                .then(response => parseResponse(response.data.type,response.data.message))
+                .catch(function (error){
+                    if(error.response)
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    else{
+                        alert("Unknown error occurred.")
+                    }
+                })
         },
         deleteTicket: function (ticketId){
             axios
                 .delete('/rest/ticket/delete/'+ticketId)
-                .then(response => console.log(response.data))
+                .then(response => parseResponse(response.data.type,response.data.message))
+                .catch(function (error){
+                    if(error.response)
+                        parseResponse(error.response.data.type,error.response.data.message)
+                    else{
+                        alert("Unknown error occurred.")
+                    }
+                })
             location.reload()
         }
     },
     mounted() {
-        if(localStorage.getItem('user')!=null){
+        if(localStorage.getItem('user')===null){
+            window.location.replace('/#/login')
+        }else{
             this.user = localStorage.getItem('user')
+            this.userId = localStorage.getItem('user_id');
         }
         axios
             .get('/rest/ticket/company?companyId='+this.companyId+'&page='+this.tablePage)
@@ -99,14 +157,9 @@ Vue.component("airline-page",{
     },
     template:`
 <div>
-	<user-logout-form></user-logout-form>
-    <input type="text" name="com_name" v-model="company.name" v-bind:disabled="mode=='BROWSE'">
-    <button v-if="this.user==='admin'" v-on:click="edit_company()" v-bind:disabled="mode=='EDIT'">Edit</button>
-    <button v-if="this.user==='admin'" v-on:click="save_edit()" v-bind:disabled="mode=='BROWSE'">Save</button>
-    <button v-if="this.user==='admin'" v-on:click="cancel_update()" v-bind:disabled="mode=='BROWSE'">Cancel</button>
-    <button v-if="this.user==='admin'" v-on:click="delete_company()" v-bind:disabled="mode=='EDIT'">Delete company</button>
+	<user-menu></user-menu>
+	<h3>{{this.company.name}}</h3>
     <br>
-    
     <table border="1">
     <tr>
         <td>One-way</td>
@@ -148,13 +201,20 @@ Vue.component("airline-page",{
     <label>{{tablePage}}</label>
     <button v-on:click="nextPage()" :disabled="checkLast()"> > </button>
     </table>
-
     <div v-if="this.user==='admin'">
+    <br>
+    <h4>Update company:</h4>
+    <input type="text" name="com_name" v-model="companyName" v-bind:disabled="mode=='BROWSE'">
+    <button v-on:click="editCompany()" v-bind:disabled="mode=='EDIT'">Edit</button>
+    <button v-on:click="saveEdit()" v-bind:disabled="mode=='BROWSE'">Save</button>
+    <button v-on:click="cancelUpdate()" v-bind:disabled="mode=='BROWSE'">Cancel</button>
+    <button v-on:click="deleteCompany()" v-bind:disabled="mode=='EDIT'">Delete company</button>
     <hr>
     <br>
+    <h4>Create new company:</h4>
     <label for="newCompany">New company:</label>
     <input type="text" name="newCompany" v-model="newCompany.name">
-    <button v-on:click="create_company()">Create</button>
+    <button v-on:click="createCompany()">Create</button>
     </div> 
 </div>    
 `

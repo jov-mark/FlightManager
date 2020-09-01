@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import users.User;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,15 +15,10 @@ public class AuthService {
     private static final String KEY = "secret";
 
     public static String generateToken(User user){
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("username",user.getUsername());
-        claims.put("password",user.getPassword());
-        claims.put("user",user);
 
-        return Jwts.builder().setSubject(user.getUsername())
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512,KEY)
-                .compact();
+        String token = Jwts.builder().setSubject(user.getUsername()).setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS512,KEY).compact();
+        System.out.println("token: "+token);
+        return "ok";
     }
 
 
