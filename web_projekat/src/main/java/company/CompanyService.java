@@ -31,6 +31,6 @@ public class CompanyService {
     }
 
     private static boolean validateInput(Company company){
-        return company.getName().equals("");
+        return !company.getName().equals("");
     }
 }

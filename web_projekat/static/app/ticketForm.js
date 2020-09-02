@@ -17,8 +17,8 @@ Vue.component("create-ticket",{
     },
     methods:{
         createTicket: function (){
-            if(!this.validateInput()){
-                console.log("Input is invalid!")
+            if(this.validateInput()){
+                alert("Input is invalid!")
                 return
             }
             this.ticket.company = this.companyList.find(x => x.id === this.selectedCompany)

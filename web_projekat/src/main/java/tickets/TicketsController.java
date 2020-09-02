@@ -34,7 +34,6 @@ public class TicketsController {
         res.type("application/json");
         TableFilter filter = gson.fromJson(req.body(),TableFilter.class);
         ServerResponse response = new ServerResponse();
-        System.out.println(filter);
         if(TicketsService.setFilter(filter)){
             response.setType("filter");
             response.setMessage("OK-F");

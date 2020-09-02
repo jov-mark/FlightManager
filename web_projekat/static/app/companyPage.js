@@ -10,6 +10,7 @@ Vue.component("airline-page",{
             table: null,
             company: {},
             companyName: "",
+            bckupName: "",
             newCompany:{
                 name: "",
                 version: 1
@@ -22,21 +23,17 @@ Vue.component("airline-page",{
             this.mode="EDIT"
         },
         saveEdit: function (){
+            this.bckupName = this.company.name
             if(this.companyName!=="") {
                 this.mode = "BROWSE"
                 if (this.companyName === this.company.name){
                     return
                 }
+                this.company.name = this.companyName
                 axios
                     .post('/rest/company/update',this.company)
                     .then(response => this.handleResponse("update",response.data))
-                    .catch(function (error){
-                        if(error.response){
-                            parseResponse(error.response.data.type,error.response.data.message)
-                        }else{
-                            parseResponse("object","ER")
-                        }
-                    })
+                    .catch(error => this.handleResponse("error", error.response.data))
             }
             else
                 alert("Name can't be null!")
@@ -95,7 +92,9 @@ Vue.component("airline-page",{
                     localStorage.setItem('res',(parseInt(localStorage.getItem('res'))+1).toString())
                     location.reload()
                     break
-                case "0":
+                case "error":
+                    this.company.name = this.bckupName
+                    break
                 case "0":
                     this.tablePage--
                     this.checkValue = true
