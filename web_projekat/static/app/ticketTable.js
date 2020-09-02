@@ -6,11 +6,12 @@ Vue.component("ticket-table",{
             main: false,
             tablePage: 1,
             checkValue: false,
+            checkDate: new Date('December 31, 2018'),
             tableFilter: {
                 originCity: 0,
                 destCity: 0,
-                departDate: new Date(),
-                returnDate: new Date(),
+                departDate: new Date('December 31, 2018'),
+                returnDate: new Date('December 31, 2018'),
                 way: "all",
                 active: false
             },
@@ -31,7 +32,7 @@ Vue.component("ticket-table",{
             this.tableFilter.active = true
             if(this.date1!=="")
                 this.tableFilter.departDate = this.date1
-            this.tableFilter.returnDate = (this.date2==="" || this.tableFilter.way==="oneWay")?new Date():this.date2
+            this.tableFilter.returnDate = (this.date2==="" || this.tableFilter.way==="oneWay")?this.tableFilter.returnDate:this.date2
             axios
                 .post('/rest/ticket/filterTable',this.tableFilter)
                 .then(response => console.log(response.status))
@@ -43,6 +44,7 @@ Vue.component("ticket-table",{
             this.checkValue=false
             if(this.tableFilter.way!==this.way){
                 this.tableFilter.way = this.way
+                console.log(this.tableFilter)
                 axios
                     .post('/rest/ticket/filterTable',this.tableFilter)
                 axios
@@ -58,8 +60,8 @@ Vue.component("ticket-table",{
             this.tableFilter = {
                 originCity: 0,
                 destCity: 0,
-                departDate: new Date(),
-                returnDate: new Date(),
+                departDate: new Date('December 31, 2018'),
+                returnDate: new Date('December 31, 2018'),
                 way: "all",
                 active: false
             }
@@ -70,7 +72,6 @@ Vue.component("ticket-table",{
                 .then(response => this.table = response.data)
         },
         nextPage: function (){
-            this.checkValue = false;
             this.tablePage++
             axios
                 .get('/rest/ticket/getFilteredTable/'+this.tablePage)
@@ -78,6 +79,7 @@ Vue.component("ticket-table",{
                 .catch(error => this.handleResponse("0",error.response.data))
         },
         prevPage: function (){
+            this.checkValue = false;
             this.tablePage--
             axios
                 .get('/rest/ticket/getFilteredTable/'+this.tablePage)
@@ -121,12 +123,6 @@ Vue.component("ticket-table",{
                 case "book":
                     localStorage.setItem('res',(parseInt(localStorage.getItem('res'))+1).toString())
                     location.reload()
-                    break
-                case "delete":
-                    axios
-                        .get('/rest/ticket/table/'+this.tablePage)
-                        .then(response => (this.table = response.data))
-                    parseResponse(data.type,data.message)
                     break
                 case "0":
                     this.tablePage--

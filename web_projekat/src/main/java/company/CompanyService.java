@@ -15,14 +15,22 @@ public class CompanyService {
     }
 
     public static ServerResponse createCompany(Company company){
-        return CompanyRepo.createCompany(company);
+        if(validateInput(company))
+            return CompanyRepo.createCompany(company);
+        return new ServerResponse("company","ER-I", 400,false);
     }
 
     public static ServerResponse updateCompany(Company company){
-        return CompanyRepo.updateCompany(company);
+        if(validateInput(company))
+            return CompanyRepo.updateCompany(company);
+        return new ServerResponse("company","ER-I", 400,false);
     }
 
     public static ServerResponse delete(String id){
         return CompanyRepo.deleteCompany(id);
+    }
+
+    private static boolean validateInput(Company company){
+        return company.getName().equals("");
     }
 }

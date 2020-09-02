@@ -34,6 +34,7 @@ public class TicketsController {
         res.type("application/json");
         TableFilter filter = gson.fromJson(req.body(),TableFilter.class);
         ServerResponse response = new ServerResponse();
+        System.out.println(filter);
         if(TicketsService.setFilter(filter)){
             response.setType("filter");
             response.setMessage("OK-F");
@@ -51,11 +52,6 @@ public class TicketsController {
         ServerResponse response = new ServerResponse();
         if(ticketTable==null){
             res.status(response.getStatus());
-            return gson.toJson(response);
-        }
-        if(ticketTable.size() == 0){
-            response.setStatus(404);
-            res.status(404);
             return gson.toJson(response);
         }
         res.status(200);

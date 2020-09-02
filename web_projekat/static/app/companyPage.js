@@ -2,6 +2,7 @@ Vue.component("airline-page",{
     data: function (){
         return{
             main: false,
+            checkValue: false,
             tablePage: 1,
             user: "",
             userId: "",
@@ -33,7 +34,7 @@ Vue.component("airline-page",{
                         if(error.response){
                             parseResponse(error.response.data.type,error.response.data.message)
                         }else{
-                            parseResponse("company","ER")
+                            parseResponse("object","ER")
                         }
                     })
             }
@@ -56,7 +57,7 @@ Vue.component("airline-page",{
                     if(error.response){
                         parseResponse(error.response.data.type,error.response.data.message)
                     }else{
-                        parseResponse("company","ER")
+                        parseResponse("object","ER")
                     }
                 })
         },
@@ -72,7 +73,7 @@ Vue.component("airline-page",{
                         if(error.response){
                             parseResponse(error.response.data.type,error.response.data.message)
                         }else{
-                            parseResponse("company","ER")
+                            parseResponse("object","ER")
                         }
                     })
             }
@@ -94,6 +95,12 @@ Vue.component("airline-page",{
                     localStorage.setItem('res',(parseInt(localStorage.getItem('res'))+1).toString())
                     location.reload()
                     break
+                case "0":
+                case "0":
+                    this.tablePage--
+                    this.checkValue = true
+                    this.checkLast()
+                    break
             }
             parseResponse(data.type,data.message)
         },
@@ -102,8 +109,10 @@ Vue.component("airline-page",{
             axios
                 .get('/rest/ticket/company?companyId='+this.companyId+'&page='+this.tablePage)
                 .then(response => (this.table = response.data))
+                .catch(error => this.handleResponse("0",error.response.data))
         },
         prevPage: function (){
+            this.checkValue = false;
             this.tablePage--
             axios
                 .get('/rest/ticket/company?companyId='+this.companyId+'&page='+this.tablePage)
@@ -111,6 +120,7 @@ Vue.component("airline-page",{
         },
         checkLast: function (){
             if(this.table===null)   return true
+            if(this.checkValue)  return true
             return this.table.length<5
         },
         editTicket: function (ticketId){
@@ -134,7 +144,6 @@ Vue.component("airline-page",{
         deleteTicket: function (ticketId){
             axios
                 .delete('/rest/ticket/delete/'+ticketId)
-                .then(response => parseResponse(response.data.type,response.data.message))
                 .catch(function (error){
                     if(error.response)
                         parseResponse(error.response.data.type,error.response.data.message)

@@ -8,6 +8,7 @@ import response.ServerResponse;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -371,6 +372,10 @@ public class TicketsRepo {
     }
 
     private static void setFilterQuery(TableFilter filter){
+        Calendar cal1 = Calendar.getInstance();
+        cal1.set(2020,Calendar.DECEMBER,31);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(2018, Calendar.DECEMBER,31);
         queryFilter ="" +
                 "select ticket.id,com.id, com.name,com.version, ticket.one_way, ticket.departure, ticket.return_date," +
                 " ticket.count,c1.id, c1.name,c2.id, c2.name, ticket.flight_id, ticket.version\n" +
@@ -388,9 +393,10 @@ public class TicketsRepo {
                 "where "+((!filter.getWay().equals("all"))?("ticket.one_way="+(filter.getWay().equals("oneWay"))+" AND "):"")+""+
                 ""+((filter.getOriginCity()!=0)?"c1.id="+filter.getOriginCity()+" AND ":"")+"" +
                 ""+((filter.getDestCity()!=0)?"c2.id="+filter.getDestCity()+" AND ":"")+"" +
-                "ticket.departure BETWEEN '"+dateFormat.format(filter.getDepartDate())+"' AND '"+new Date(2100,12,31)+"'" +
-                ""+((filter.getReturn(dateFormat))?" AND ticket.return_date BETWEEN '" +
+                "ticket.departure BETWEEN '"+dateFormat.format(filter.getDepartDate())+"' AND '"+dateFormat.format(cal1.getTime())+"'" +
+                ""+((filter.getReturnDate().compareTo(cal2.getTime())>0)?" AND ticket.return_date BETWEEN '" +
                 ""+dateFormat.format(filter.getDepartDate())+"' AND '"+dateFormat.format(filter.getReturnDate())+"'":"");
+
     }
 
     private static String queryCreateTicket="INSERT INTO `ticket` " +

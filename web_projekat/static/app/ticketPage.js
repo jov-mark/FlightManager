@@ -8,12 +8,13 @@ Vue.component("ticket-page",{
                 id: this.ticketId,
                 oneWay: false,
                 company: {},
-                departureDate: "",
-                returnDate: "",
+                departureDate: null,
+                returnDate: null,
                 flight: {},
                 count: "",
                 version: 0
-            }
+            },
+            millisInDay: 86400000
         }
     },
     methods:{
@@ -39,11 +40,19 @@ Vue.component("ticket-page",{
             parseResponse(data.type,data.message)
         },
         validateInput: function (){
-            if(this.ticket.count<1) {
-                console.log("Count must be at least 1")
+            const isDate = (Date.parse(this.ticket.departureDate)-Date.parse(this.ticket.returnDate)>=0)
+            if(this.ticket.count<1 || isDate) {
+                alert("Invalid input!")
                 return false;
             }
             return true;
+        },
+        formatResponse: function (data){
+            this.ticket = data
+            this.ticket.departureDate = moment(this.ticket.departureDate, 'll').format("yyyy-MM-DD")
+            if(this.ticket.returnDate!=null)
+                this.ticket.returnDate = moment(this.ticket.returnDate, 'll').format("yyyy-MM-DD")
+
         }
     },
     mounted() {
@@ -58,7 +67,7 @@ Vue.component("ticket-page",{
             .then(response => (this.flightList = response.data))
         axios
             .get('/rest/ticket/get/'+this.ticketId)
-            .then(response => (this.ticket = response.data))
+            .then(response => this.formatResponse(response.data))
             .catch(function (error){
                 if(error.response){
                     parseResponse(error.response.data.type,error.response.data.message)

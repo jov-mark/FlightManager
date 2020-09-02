@@ -14,6 +14,9 @@ function parseResponse (sSwitch, sResponse){
                 case "OK-D":
                     alert("Company successfully deleted.")
                     break
+                case "ER-I":
+                    alert("Invalid input!")
+                    break
                 case "ER":
                     alert("An error occurred.")
                     break

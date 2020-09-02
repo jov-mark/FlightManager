@@ -56,8 +56,9 @@ Vue.component("create-ticket",{
             const isReturn = (this.ticket.oneWay==="false" && this.ticket.returnDate!=="") || this.ticket.oneWay==="true"
             const isComSelected = this.selectedCompany != null
             const isFlightSelected = this.selectedFlight != null
+            const isDate = (Date.parse(this.ticket.departureDate)-Date.parse(this.ticket.returnDate)>=0)
             const isCount = this.ticket.count!=="" && parseInt(this.ticket.count)>0
-            return isOneWay && isDeparture && isReturn && isComSelected && isFlightSelected && isCount
+            return isOneWay && isDeparture && isReturn && isComSelected && isFlightSelected && isCount && isDate
         }
     },
     mounted() {
